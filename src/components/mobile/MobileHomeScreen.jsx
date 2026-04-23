@@ -71,7 +71,8 @@ export function MobileHomeScreen({
   }, [identity.name, remotePeer, roomCode, t]);
 
   const connectValue = peerInput.trim() || roomDigits.join("");
-  const sheetY = isSheetExpanded ? 0 : 232;
+  // SENİN ORİJİNAL HESAPLAMAN GERİ GELDİ
+  const sheetY = isSheetExpanded ? 0 : 232; 
   const canConnect = connectValue.trim().length > 0;
 
   const handleDigitChange = (index, nextValue) => {
@@ -109,15 +110,16 @@ export function MobileHomeScreen({
       </header>
 
       <main className="relative flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden pb-48 pt-10">
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-20">
-          <div className="absolute h-64 w-64 rounded-full border border-cyan-400" />
-          <div className="absolute h-96 w-96 rounded-full border border-cyan-400" />
-          <div className="absolute h-[32rem] w-[32rem] rounded-full border border-cyan-400" />
-          <div className="absolute h-px w-full bg-cyan-400" />
-          <div className="absolute h-full w-px bg-cyan-400" />
-        </div>
-
+        
         <section className="relative flex flex-1 items-center justify-center px-4">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center opacity-20">
+            <div className="absolute h-64 w-64 rounded-full border border-cyan-400" />
+            <div className="absolute h-96 w-96 rounded-full border border-cyan-400" />
+            <div className="absolute h-[32rem] w-[32rem] rounded-full border border-cyan-400" />
+            <div className="absolute h-px w-[150vw] bg-cyan-400" />
+            <div className="absolute h-[150vh] w-px bg-cyan-400" />
+          </div>
+
           <motion.div
             animate={{
               scale: [0.95, 1, 0.95],
@@ -160,23 +162,23 @@ export function MobileHomeScreen({
           </div>
         </section>
 
-        <div className="pointer-events-none fixed bottom-[5.25rem] z-30 flex w-full flex-col items-center px-4">
+        {/* REKLAMIN ARKASINDA KALMAMASI İÇİN z-[60] OLARAK GÜNCELLENDİ */}
+        <div className="pointer-events-none fixed bottom-[5.25rem] z-[60] flex w-full flex-col items-center px-4">
           <motion.div
             drag="y"
-            dragElastic={0.08}
+            dragElastic={0.1}
             dragMomentum={false}
+            // HATA BURADAYDI, ŞİMDİ MÜKEMMEL SINIRLANDIRILDI
+            dragConstraints={{ top: 0, bottom: 232 }}
             onDragEnd={(_, info) => {
-              if (info.offset.y > 80 || info.velocity.y > 500) {
+              if (info.offset.y > 50 || info.velocity.y > 300) {
                 setIsSheetExpanded(false);
-                return;
-              }
-
-              if (info.offset.y < -80 || info.velocity.y < -500) {
+              } else if (info.offset.y < -50 || info.velocity.y < -300) {
                 setIsSheetExpanded(true);
               }
             }}
             animate={{ y: sheetY }}
-            transition={{ type: "spring", stiffness: 280, damping: 32 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="pointer-events-auto w-full max-w-md rounded-t-[32px] border-x border-t border-white/10 bg-[rgba(32,31,31,0.8)] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] backdrop-blur-[40px]"
           >
             <div
@@ -189,7 +191,7 @@ export function MobileHomeScreen({
                   setIsSheetExpanded((current) => !current);
                 }
               }}
-              className="flex w-full flex-col items-center px-6 pb-3 pt-4"
+              className="flex w-full cursor-grab flex-col items-center px-6 pb-3 pt-4 active:cursor-grabbing"
             >
               <div className="mb-4 h-1 w-12 rounded-full bg-white/20" />
               <div className="flex w-full items-center justify-between">

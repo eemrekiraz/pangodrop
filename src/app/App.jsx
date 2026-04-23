@@ -41,44 +41,11 @@ export default function App() {
 
   return (
     <>
-      <div className="md:hidden">
-        {mobileStage === "home" ? (
-          <MobileHomeScreen
-            identity={rtc.identity}
-            roomCode={rtc.roomCode}
-            peerId={rtc.peerId}
-            remotePeer={rtc.remotePeer}
-            connectionState={rtc.connectionState}
-            shareLink={rtc.shareLink}
-            onConnect={rtc.connectToPeer}
-            onSendFile={handleSendFile}
-          />
-        ) : null}
-
-        {mobileStage === "transfer" ? (
-          <MobileTransferScreen
-            remotePeer={rtc.remotePeer}
-            transfer={rtc.transfer}
-            shareLink={rtc.shareLink}
-            onCancel={() => {
-              rtc.cancelTransfer();
-              setActiveFile(null);
-            }}
-          />
-        ) : null}
-
-        {mobileStage === "success" ? (
-          <MobileSuccessScreen
-            summary={summary}
-            onClose={handleCloseTransfer}
-          />
-        ) : null}
-      </div>
-
-      <div className="hidden md:block">
-        <AppShell>
-          <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 pb-12 pt-4 sm:gap-8 sm:px-6 sm:pb-16 sm:pt-6 lg:px-8 lg:pb-20">
-            <RadarScreen
+      {/* MOBİL GÖRÜNÜM */}
+      <div className="md:hidden flex flex-col min-h-[100dvh] bg-[#06131b]">
+        <div className="flex-1">
+          {mobileStage === "home" ? (
+            <MobileHomeScreen
               identity={rtc.identity}
               roomCode={rtc.roomCode}
               peerId={rtc.peerId}
@@ -86,16 +53,68 @@ export default function App() {
               connectionState={rtc.connectionState}
               shareLink={rtc.shareLink}
               onConnect={rtc.connectToPeer}
-            />
-
-            <TransferPanel
-              activeFile={activeFile}
-              connectionState={rtc.connectionState}
-              transfer={rtc.transfer}
-              remotePeer={rtc.remotePeer}
-              onPickFile={setActiveFile}
               onSendFile={handleSendFile}
             />
+          ) : null}
+
+          {mobileStage === "transfer" ? (
+            <MobileTransferScreen
+              remotePeer={rtc.remotePeer}
+              transfer={rtc.transfer}
+              shareLink={rtc.shareLink}
+              onCancel={() => {
+                rtc.cancelTransfer();
+                setActiveFile(null);
+              }}
+            />
+          ) : null}
+
+          {mobileStage === "success" ? (
+            <MobileSuccessScreen
+              summary={summary}
+              onClose={handleCloseTransfer}
+            />
+          ) : null}
+        </div>
+
+        {/* Mobil AdSense Anchor (Yapışkan Alt Reklam) - Yüksek Gelir Alanı */}
+        <div className="w-full bg-white/5 border-t border-white/10 sticky bottom-0 z-50 flex items-center justify-center p-2 min-h-[60px]">
+          <span className="text-xs text-slate-500">[AdSense Mobile Bottom Anchor]</span>
+        </div>
+      </div>
+
+      {/* MASAÜSTÜ GÖRÜNÜM */}
+      <div className="hidden md:block bg-[#06131b] min-h-screen">
+        <AppShell>
+          <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-between px-4 pb-6 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+            
+            {/* Üst Kısım: Radar ve Transfer */}
+            <div className="flex flex-col gap-6 sm:gap-8">
+              <RadarScreen
+                identity={rtc.identity}
+                roomCode={rtc.roomCode}
+                peerId={rtc.peerId}
+                remotePeer={rtc.remotePeer}
+                connectionState={rtc.connectionState}
+                shareLink={rtc.shareLink}
+                onConnect={rtc.connectToPeer}
+              />
+
+              {/* Masaüstü AdSense Banner - Radar Altı / Butonlardan Uzak Güvenli Bölge */}
+              <div className="w-full max-w-3xl mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-4 min-h-[90px] shadow-lg">
+                <span className="text-xs text-slate-500">[AdSense Desktop Horizontal Banner]</span>
+              </div>
+
+              <TransferPanel
+                activeFile={activeFile}
+                connectionState={rtc.connectionState}
+                transfer={rtc.transfer}
+                remotePeer={rtc.remotePeer}
+                onPickFile={setActiveFile}
+                onSendFile={handleSendFile}
+              />
+            </div>
+
           </div>
         </AppShell>
       </div>

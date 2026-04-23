@@ -1,16 +1,40 @@
+// src/workers/chunk.worker.js
+
+let currentFile = null;
+let currentChunkSize = 0;
+let offset = 0;
+let currentIndex = 0;
+
 self.onmessage = async (event) => {
-  const { file, chunkSize } = event.data || {};
+  const { type, file, chunkSize } = event.data;
 
-  if (!file) {
-    return;
+  // 1. İşçiyi hazırlama aşaması
+  if (type === "init") {
+    currentFile = file;
+    currentChunkSize = chunkSize;
+    offset = 0;
+    currentIndex = 0;
+    self.postMessage({ type: "ready" });
+  } 
+  
+  // 2. Ana ekrandan "Sıradaki parçayı gönder" emri geldiğinde
+  else if (type === "next") {
+    if (!currentFile || offset >= currentFile.size) {
+      self.postMessage({ type: "done" });
+      return;
+    }
+
+    // Dosyadan bir dilim kes (Slice anında belleği yormaz)
+    const blob = currentFile.slice(offset, offset + currentFile.chunkSize || currentChunkSize);
+    const payload = await blob.arrayBuffer();
+
+    // Veriyi kopyalamadan (Sıfır RAM tüketimiyle) ana ekrana fırlat
+    self.postMessage(
+      { type: "chunk", index: currentIndex, payload },
+      [payload]
+    );
+
+    offset += currentChunkSize;
+    currentIndex += 1;
   }
-
-  let index = 0;
-  for (let offset = 0; offset < file.size; offset += chunkSize) {
-    const payload = await file.slice(offset, offset + chunkSize).arrayBuffer();
-    self.postMessage({ index, payload }, [payload]);
-    index += 1;
-  }
-
-  self.postMessage({ done: true });
 };

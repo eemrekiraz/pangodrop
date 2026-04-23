@@ -1,6 +1,7 @@
 import { Globe2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageToggle } from "../common/LanguageToggle";
+import { InstallPWAButton } from "../common/InstallPWAButton"; // Eklendi
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export function TopBar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <InstallPWAButton /> {/* Dil butonunun yanına eklendi */}
         <LanguageToggle />
       </div>
     </header>
