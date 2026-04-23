@@ -9,10 +9,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["globedrop-icon.svg"],
+      includeAssets: ["directlydrop-icon.sv"],
       manifest: {
-        name: "GlobeDrop",
-        short_name: "GlobeDrop",
+        name: "DirectlyDrop",
+        short_name: "DirectlyDrop",
         description: "Browser-based universal peer-to-peer file transfer.",
         theme_color: "#06131b",
         background_color: "#06131b",
@@ -20,7 +20,7 @@ export default defineConfig({
         start_url: "/",
         icons: [
           {
-            src: "/globedrop-icon.svg",
+            src: "/directlydrop-icon.sv",
             sizes: "any",
             type: "image/svg+xml",
             purpose: "any maskable"

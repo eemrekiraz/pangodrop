@@ -1,6 +1,6 @@
 {
-  "name": "GlobeDrop",
-  "short_name": "GlobeDrop",
+  "name": "DirectlyDrop",
+  "short_name": "DirectlyDrop",
   "description": "Browser-based universal peer-to-peer file transfer.",
   "display": "standalone",
   "start_url": "/",

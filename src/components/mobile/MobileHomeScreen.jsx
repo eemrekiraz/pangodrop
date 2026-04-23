@@ -71,7 +71,6 @@ export function MobileHomeScreen({
   }, [identity.name, remotePeer, roomCode, t]);
 
   const connectValue = peerInput.trim() || roomDigits.join("");
-  // SENİN ORİJİNAL HESAPLAMAN GERİ GELDİ
   const sheetY = isSheetExpanded ? 0 : 232; 
   const canConnect = connectValue.trim().length > 0;
 
@@ -101,7 +100,7 @@ export function MobileHomeScreen({
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10">
             <div className="h-3.5 w-3.5 rounded-full border-2 border-cyan-400" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-cyan-400">GlobeDrop</h1>
+          <h1 className="text-xl font-bold tracking-tight text-cyan-400">DirectlyDrop</h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -162,13 +161,11 @@ export function MobileHomeScreen({
           </div>
         </section>
 
-        {/* REKLAMIN ARKASINDA KALMAMASI İÇİN z-[60] OLARAK GÜNCELLENDİ */}
         <div className="pointer-events-none fixed bottom-[5.25rem] z-[60] flex w-full flex-col items-center px-4">
           <motion.div
             drag="y"
             dragElastic={0.1}
             dragMomentum={false}
-            // HATA BURADAYDI, ŞİMDİ MÜKEMMEL SINIRLANDIRILDI
             dragConstraints={{ top: 0, bottom: 232 }}
             onDragEnd={(_, info) => {
               if (info.offset.y > 50 || info.velocity.y > 300) {

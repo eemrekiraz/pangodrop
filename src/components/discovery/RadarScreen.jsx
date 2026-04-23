@@ -27,7 +27,7 @@ export function RadarScreen({
       <GlassCard className="relative overflow-hidden rounded-[1.75rem] p-4 sm:rounded-[2rem] sm:p-8">
         <div className="mb-5 max-w-xl sm:mb-6">
           <div className="mb-3 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-cyan-200 sm:text-xs">
-            GlobeDrop Radar
+            DirectlyDrop Radar
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--text-primary)] sm:text-5xl">
             {t("radar.title")}

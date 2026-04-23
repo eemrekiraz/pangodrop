@@ -1,7 +1,7 @@
 import { Globe2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageToggle } from "../common/LanguageToggle";
-import { InstallPWAButton } from "../common/InstallPWAButton"; // Eklendi
+import { InstallPWAButton } from "../common/InstallPWAButton";
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -13,13 +13,18 @@ export function TopBar() {
           <Globe2 size={20} />
         </div>
         <div className="min-w-0">
-          <div className="truncate text-base font-semibold tracking-tight text-[color:var(--text-primary)] sm:text-lg">GlobeDrop</div>
-          <div className="hidden text-sm text-[color:var(--text-muted)] sm:block">{t("app.tagline")}</div>
+          {/* Proje ismi DirectlyDrop olarak güncellendi */}
+          <div className="truncate text-base font-semibold tracking-tight text-[color:var(--text-primary)] sm:text-lg">
+            DirectlyDrop
+          </div>
+          <div className="hidden text-sm text-[color:var(--text-muted)] sm:block">
+            {t("app.tagline")}
+          </div>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <InstallPWAButton /> {/* Dil butonunun yanına eklendi */}
+        <InstallPWAButton />
         <LanguageToggle />
       </div>
     </header>
