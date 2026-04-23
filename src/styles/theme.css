@@ -1,0 +1,26 @@
+:root {
+  --surface-base: #06131b;
+  --surface-panel: rgba(10, 22, 31, 0.72);
+  --surface-panel-strong: rgba(9, 18, 26, 0.92);
+  --text-primary: #ebf8ff;
+  --text-muted: #a9c6d3;
+  --accent: #53e0ff;
+  --accent-2: #88f7c6;
+}
+
+.mesh-background {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(81, 224, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 85% 20%, rgba(40, 181, 255, 0.12), transparent 26%),
+    radial-gradient(circle at 75% 85%, rgba(136, 247, 198, 0.14), transparent 24%),
+    linear-gradient(180deg, rgba(8, 20, 28, 0.96) 0%, rgba(4, 13, 19, 1) 100%);
+}
+
+.glass-panel {
+  background: var(--surface-panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 60px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(24px);
+}

@@ -1,0 +1,17 @@
+{
+  "name": "GlobeDrop",
+  "short_name": "GlobeDrop",
+  "description": "Browser-based universal peer-to-peer file transfer.",
+  "display": "standalone",
+  "start_url": "/",
+  "theme_color": "#06131b",
+  "background_color": "#06131b",
+  "icons": [
+    {
+      "src": "/globedrop-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

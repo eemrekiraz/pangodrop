@@ -1,0 +1,94 @@
+{
+  "app": {
+    "tagline": "Evrensel taray\u0131c\u0131 tabanl\u0131 dosya aktar\u0131m\u0131",
+    "betaNote": "WebRTC ve chunking temelli ilk iskelet"
+  },
+  "nav": {
+    "discover": "Ke\u015ffet",
+    "transfers": "Aktar\u0131mlar",
+    "vault": "Kasa",
+    "settings": "Ayarlar"
+  },
+  "radar": {
+    "title": "Yak\u0131n cihazlar\u0131 bul",
+    "subtitle": "Platformlar aras\u0131 ba\u011flanmak i\u00e7in oda kodu payla\u015f, QR kod okut veya peer ID yap\u0131\u015ft\u0131r.",
+    "manualConnect": "Elle ba\u011flan",
+    "roomCode": "Oda kodu",
+    "peerId": "Peer ID",
+    "shareLink": "Payla\u015f\u0131m ba\u011flant\u0131s\u0131",
+    "placeholder": "Peer ID veya payla\u015f\u0131m ba\u011flant\u0131s\u0131 yap\u0131\u015ft\u0131r",
+    "cta": "Ba\u011flan",
+    "connected": "{{name}} ile ba\u011fl\u0131",
+    "waiting": "E\u015f bekleniyor",
+    "discoveryHint": "Ger\u00e7ek LAN ke\u015ffi ek bir e\u015fle\u015ftirme katman\u0131 gerektirir; bu s\u00fcr\u00fcmde en g\u00fcvenilir yol do\u011frudan peer ba\u011flant\u0131s\u0131d\u0131r."
+  },
+  "dropzone": {
+    "title": "Dosyay\u0131 buraya b\u0131rak",
+    "subtitle": "B\u00fcy\u00fck dosyalar i\u00e7in par\u00e7al\u0131 aktar\u0131m haz\u0131r.",
+    "browse": "Dosya se\u00e7",
+    "hint": "Masa\u00fcst\u00fcnde s\u00fcr\u00fckle b\u0131rak, mobilde dosya se\u00e7ici",
+    "send": "Dosyay\u0131 g\u00f6nder",
+    "none": "Hen\u00fcz dosya se\u00e7ilmedi",
+    "connectFirst": "\u00d6nce bir e\u015fe ba\u011flan",
+    "connectionReady": "Ba\u011flant\u0131 haz\u0131r"
+  },
+  "transfer": {
+    "emptyTitle": "Dosya se\u00e7ilmedi",
+    "unknownPeer": "Bilinmeyen e\u015f",
+    "ready": "G\u00f6nderime haz\u0131r",
+    "sending": "G\u00f6nderiliyor",
+    "receiving": "Al\u0131n\u0131yor",
+    "completed": "Aktar\u0131m tamamland\u0131",
+    "speed": "H\u0131z",
+    "remaining": "Kalan",
+    "progress": "\u0130lerleme",
+    "connectedTo": "{{name}} ile ba\u011fl\u0131",
+    "memoryNote": "Mevcut al\u0131c\u0131 ak\u0131\u015f\u0131 par\u00e7alar\u0131 bellekte birle\u015ftiriyor. Sonraki ad\u0131mda bunu OPFS veya IndexedDB ak\u0131\u015f\u0131na ta\u015f\u0131yabiliriz."
+  },
+  "ads": {
+    "radar": "Reklam",
+    "bottom": "Reklam",
+    "interstitial": "Sponsorlu alan"
+  },
+  "actions": {
+    "close": "Kapat",
+    "copy": "Kopyala",
+    "copied": "Kopyaland\u0131",
+    "language": "Dil"
+  },
+  "mobile": {
+    "joinRoom": "Bir Odaya Kat\u0131l",
+    "advertisement": "Reklam",
+    "peerLinkLabel": "Peer ba\u011flant\u0131s\u0131 veya ID",
+    "peerLinkHint": "Oda aray\u00fcz\u00fc haz\u0131r, ancak relay ke\u015ffi eklenene kadar en g\u00fcvenilir yol do\u011frudan peer ba\u011flant\u0131s\u0131d\u0131r.",
+    "chooseFile": "Dosya Se\u00e7",
+    "readyToShare": "{{name}} ile payla\u015f\u0131ma haz\u0131r",
+    "secureTunnel": "G\u00fcvenli T\u00fcnel Aktif",
+    "myDevice": "Cihaz\u0131m",
+    "thisDevice": "Bu cihaz",
+    "connectedPeer": "Ba\u011fl\u0131 e\u015f",
+    "cancelTransfer": "Aktar\u0131m\u0131 \u0130ptal Et",
+    "fileSent": "G\u00f6nderilen Dosya",
+    "recipient": "Al\u0131c\u0131",
+    "closeTransfer": "Aktar\u0131m\u0131 Kapat"
+  },
+  "peer": {
+    "emptyTitle": "Hen\u00fcz bir e\u015f ba\u011flanmad\u0131",
+    "emptyDetail": "Do\u011frudan ba\u011flant\u0131 i\u00e7in peer ba\u011flant\u0131s\u0131, QR kod veya payla\u015f\u0131m ba\u011flant\u0131s\u0131 kullan."
+  },
+  "qr": {
+    "title": "QR ile Ba\u011flan",
+    "copyLink": "Ba\u011flant\u0131y\u0131 Kopyala",
+    "helper": "Bu QR kodu di\u011fer cihazda a\u00e7 veya do\u011frudan ba\u011flanmak i\u00e7in payla\u015f\u0131m ba\u011flant\u0131s\u0131n\u0131 kopyala."
+  },
+  "policy": {
+    "title": "Reklam ve Gizlilik",
+    "summary": "A\u00e7\u0131k reklam etiketleri, \u00e7erez bildirimi ve gizlilik bilgilendirmesi.",
+    "cookies": "Bu site dil tercihleri, aktar\u0131m durumu, reklam sunumu ve reklam \u00f6l\u00e7\u00fcm\u00fc i\u00e7in \u00e7erez veya yerel depolama kullanabilir.",
+    "labeling": "Reklam alanlar\u0131 reklam olarak etiketlenir ve aktar\u0131m eylemleri, gezinme ve ba\u011flant\u0131 kontrollerinden g\u00f6rsel olarak ayr\u0131 tutulur.",
+    "consent": "Google ve i\u015f ortaklar\u0131, bulundu\u011fun b\u00f6lgeye ve verdi\u011fin izin tercihine g\u00f6re ki\u015fiselle\u015ftirilmi\u015f veya ki\u015fiselle\u015ftirilmemi\u015f reklam g\u00f6sterebilir.",
+    "safety": "Ziyaret\u00e7ilerden reklamlara t\u0131klamalar\u0131n\u0131 istemeyiz; reklam etkile\u015fimi yaln\u0131zca ger\u00e7ek kullan\u0131c\u0131 ilgisiyle olmal\u0131d\u0131r.",
+    "googleAds": "Google reklam teknolojileri",
+    "googlePrivacy": "Google gizlilik"
+  }
+}

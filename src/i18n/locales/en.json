@@ -1,0 +1,94 @@
+{
+  "app": {
+    "tagline": "Universal browser-based file drop",
+    "betaNote": "Initial scaffold with WebRTC and chunking foundations"
+  },
+  "nav": {
+    "discover": "Discover",
+    "transfers": "Transfers",
+    "vault": "Vault",
+    "settings": "Settings"
+  },
+  "radar": {
+    "title": "Find nearby devices",
+    "subtitle": "Share a room code, scan a QR code, or paste a peer ID to connect across platforms.",
+    "manualConnect": "Connect manually",
+    "roomCode": "Room code",
+    "peerId": "Peer ID",
+    "shareLink": "Share link",
+    "placeholder": "Paste peer ID or share link",
+    "cta": "Connect",
+    "connected": "Connected to {{name}}",
+    "waiting": "Waiting for a peer",
+    "discoveryHint": "True LAN discovery needs an additional rendezvous layer, so direct peer links are the reliable path in this build."
+  },
+  "dropzone": {
+    "title": "Drop a file here",
+    "subtitle": "Chunked transfer is enabled for large files.",
+    "browse": "Browse files",
+    "hint": "Desktop drag and drop, mobile file picker",
+    "send": "Send file",
+    "none": "No file selected yet",
+    "connectFirst": "Connect to a peer first",
+    "connectionReady": "Connection ready"
+  },
+  "transfer": {
+    "emptyTitle": "No file selected",
+    "unknownPeer": "Unknown peer",
+    "ready": "Ready to send",
+    "sending": "Sending",
+    "receiving": "Receiving",
+    "completed": "Transfer complete",
+    "speed": "Speed",
+    "remaining": "Remaining",
+    "progress": "Progress",
+    "connectedTo": "Connected to {{name}}",
+    "memoryNote": "Current receive flow reassembles chunks in memory. We can upgrade this to OPFS or IndexedDB streaming next."
+  },
+  "ads": {
+    "radar": "Advertisement",
+    "bottom": "Advertisement",
+    "interstitial": "Sponsored placement"
+  },
+  "actions": {
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "language": "Language"
+  },
+  "mobile": {
+    "joinRoom": "Join a Room",
+    "advertisement": "Advertisement",
+    "peerLinkLabel": "Peer link or ID",
+    "peerLinkHint": "The room UI is available, but direct peer links are the reliable option until relay discovery is added.",
+    "chooseFile": "Choose File",
+    "readyToShare": "Ready to share with {{name}}",
+    "secureTunnel": "Secure Tunnel Active",
+    "myDevice": "My Device",
+    "thisDevice": "This device",
+    "connectedPeer": "Connected peer",
+    "cancelTransfer": "Cancel Transfer",
+    "fileSent": "File Sent",
+    "recipient": "Recipient",
+    "closeTransfer": "Close transfer"
+  },
+  "peer": {
+    "emptyTitle": "No peer connected yet",
+    "emptyDetail": "Use a peer link, QR code, or share link to open a direct connection."
+  },
+  "qr": {
+    "title": "QR Connect",
+    "copyLink": "Copy share link",
+    "helper": "Open this QR code on another device or copy the share link to connect directly."
+  },
+  "policy": {
+    "title": "Advertising and Privacy",
+    "summary": "Clear ad labeling, cookie notice, and privacy guidance.",
+    "cookies": "This site may use cookies or local storage for language preferences, transfer state, ad delivery, and ad measurement.",
+    "labeling": "Ads are labeled as advertisements and kept visually separate from transfer actions, navigation, and connection controls.",
+    "consent": "Google and its partners may serve personalized or non-personalized ads depending on your region and consent choices.",
+    "safety": "We do not ask visitors to click ads, and ad interaction should only happen from genuine user interest.",
+    "googleAds": "Google ad technologies",
+    "googlePrivacy": "Google privacy"
+  }
+}
