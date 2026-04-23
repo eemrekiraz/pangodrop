@@ -1,10 +1,8 @@
-// src/lib/transfer/chunkFile.js
-
 export const CHUNK_SIZE = 64 * 1024;
 
 export async function* chunkFile(file, chunkSize = CHUNK_SIZE) {
-  // Vite'de Worker çağırmanın en modern yolu
-  const worker = new Worker(new URL("../workers/chunk.worker.js", import.meta.url), {
+  // İŞTE VİTE VE NETLIFY'I ÇÖZECEK O SİHİRLİ SATIR BURASI (../../ yaptık)
+  const worker = new Worker(new URL("../../workers/chunk.worker.js", import.meta.url), {
     type: "module",
   });
 
