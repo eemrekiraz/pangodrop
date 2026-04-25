@@ -107,7 +107,7 @@ export function MobileHomeScreen({
           <img 
             src="/directlydrop-icon.svg" 
             alt="Logo" 
-            className="h-8 w-auto object-contain" 
+            className="h-16 w-auto object-contain" 
           />
           <h1 className="text-xl font-bold tracking-tight text-cyan-400">DirectlyDrop</h1>
         </div>
