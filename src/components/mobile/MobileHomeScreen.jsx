@@ -27,15 +27,15 @@ function RoomDigit({ value, onChange, onKeyDown, inputRef }) {
       ref={inputRef}
       value={value}
       maxLength={1}
-      // BURASI ÇOK ÖNEMLİ: inputMode numeric olursa doğrudan büyük sayısal klavye açılır
       inputMode="numeric" 
-      // pattern ile telefonun sadece sayı beklemesini garantiye alıyoruz
       pattern="[0-9]*" 
       placeholder="-"
       onChange={(e) => {
-        // Kullanıcı ne yaparsa yapsın, eğer girdiği şey sayı değilse sil! (Sadece rakam)
+        // Gelen karakterleri sadece rakam olacak şekilde temizle
         const val = e.target.value.replace(/[^0-9]/g, ''); 
-        onChange(val);
+        
+        // Ana sayfanın (parent) beklediği formata (event objesi taklidi) çevirerek gönder!
+        onChange({ target: { value: val } });
       }}
       onKeyDown={onKeyDown}
       className="h-14 w-12 rounded-none border-0 border-b-2 border-[rgba(132,147,150,0.35)] bg-transparent text-center text-2xl font-semibold text-[color:var(--text-primary)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-[color:var(--accent)]"
@@ -244,12 +244,12 @@ export function MobileHomeScreen({
 
               <div className="mt-4 rounded-2xl border border-white/5 bg-black/10 px-4 py-3">
                 <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                  {t("mobile.peerLinkLabel")}
+                  {t("radar.roomCode")}
                 </div>
                 <input
                   value={peerInput}
                   onChange={(event) => setPeerInput(event.target.value)}
-                  placeholder={shareLink || roomCode || generateRoomCode("")}
+                  placeholder={t("radar.placeholder")}
                   className="w-full border-0 bg-transparent p-0 text-sm text-[color:var(--text-primary)] outline-none placeholder:text-[color:var(--text-muted)]"
                 />
               </div>
