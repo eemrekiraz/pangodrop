@@ -257,7 +257,7 @@ export function MobileHomeScreen({
               <p className="mt-3 text-xs leading-5 text-[color:var(--text-muted)]">{t("mobile.peerLinkHint")}</p>
 
               <div className="mt-4">
-                <RoomCodePanel roomCode={roomCode} peerId={peerId} shareLink={shareLink} />
+                <RoomCodePanel roomCode={roomCode} shareLink={shareLink} />
               </div>
 
               <div className="mt-4 rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
