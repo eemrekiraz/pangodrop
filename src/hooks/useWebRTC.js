@@ -196,15 +196,49 @@ export function useWebRTC() {
   );
 
   useEffect(() => {
-    // 1. Kendi 6 haneli (Sadece harf ve rakam) kısa kimliğimizi üretiyoruz
-    const generateShortId = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let result = '';
-      for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
+    // Sadece 6 haneli rastgele bir RAKAM üretiyoruz
+    const generateNumericCode = () => {
+      return Math.floor(100000 + Math.random() * 900000).toString();
     };
+    
+    const myCode = generateNumericCode();
+    const customPeerId = `pangodrop-${myCode}`;
+
+    // PeerJS'e kimliğimizi "pangodrop-123456" formatında veriyoruz
+    const peer = new Peer(customPeerId, {
+      debug: 1
+    });
+
+    peerRef.current = peer;
+
+    peer.on("open", (id) => {
+      setPeerId(id);
+      
+      // Kullanıcıya ekranda sadece 6 rakamı (myCode) gösteriyoruz!
+      setRoomCode(myCode);
+      setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
+      setConnectionState("ready");
+
+      const peerFromUrl = new URLSearchParams(window.location.search).get("peer");
+      if (peerFromUrl && peerFromUrl !== id) {
+        const outbound = peer.connect(peerFromUrl, { reliable: true });
+        attachConnection(outbound);
+      }
+    });
+
+    peer.on("connection", (connection) => {
+      attachConnection(connection);
+    });
+
+    peer.on("error", () => {
+      setConnectionState("error");
+    });
+
+    return () => {
+      connectionRef.current?.close();
+      peer.destroy();
+    };
+  }, [attachConnection]);
     
     const customPeerId = generateShortId();
 
@@ -275,7 +309,15 @@ export function useWebRTC() {
 
   const connectToPeer = useCallback(
     (value) => {
-      const targetPeerId = resolvePeerInput(value.trim());
+      let targetPeerId = value.trim();
+      
+      // EĞER KULLANICI SADECE 6 RAKAM GİRDİYSE, GİZLİCE ÖNEK EKLE
+      if (/^\d{6}$/.test(targetPeerId)) {
+        targetPeerId = `pangodrop-${targetPeerId}`;
+      } else {
+        targetPeerId = resolvePeerInput(targetPeerId);
+      }
+
       if (!targetPeerId || !peerRef.current) {
         return false;
       }
