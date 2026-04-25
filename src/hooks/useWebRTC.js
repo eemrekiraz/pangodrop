@@ -212,7 +212,7 @@ export function useWebRTC() {
     peerRef.current = peer;
 
     peer.on("open", (id) => {
-      setPeerId(id);
+      setPeerId(myCode);
       setRoomCode(myCode); // Kullanıcı sadece myCode (6 rakam) görecek
       setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
       setConnectionState("ready");
