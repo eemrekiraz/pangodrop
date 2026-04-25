@@ -1,5 +1,4 @@
 import { BottomAnchorAd } from "../ads/BottomAnchorAd";
-import { SitePolicyNotice } from "../common/SitePolicyNotice";
 import { MobileNav } from "./MobileNav";
 import { TopBar } from "./TopBar";
 
@@ -14,7 +13,7 @@ export function AppShell({ children }) {
           {children}
           <div className="grid gap-6 px-4 pb-10 sm:px-6 lg:px-8">
             <BottomAnchorAd />
-            <SitePolicyNotice />
+            {/* Eski Reklam ve Gizlilik kutusu buradan silindi! */}
           </div>
         </div>
         <MobileNav />

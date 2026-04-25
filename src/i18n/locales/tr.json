@@ -90,5 +90,31 @@
     "safety": "Ziyaret\u00e7ilerden reklamlara t\u0131klamalar\u0131n\u0131 istemeyiz; reklam etkile\u015fimi yaln\u0131zca ger\u00e7ek kullan\u0131c\u0131 ilgisiyle olmal\u0131d\u0131r.",
     "googleAds": "Google reklam teknolojileri",
     "googlePrivacy": "Google gizlilik"
+  },
+  "seo": {
+    "howItWorks": "Nasıl Çalışır?",
+    "step1Title": "1. Bağlantı Kurun",
+    "step1Desc": "Ekranda beliren 6 haneli oda kodunu, QR kodu veya paylaşım bağlantısını kullanarak alıcıyla eşleşin.",
+    "step2Title": "2. Dosyanızı Seçin",
+    "step2Desc": "Bağlantı sağlandıktan sonra göndermek istediğiniz dosyayı seçin. Dosya boyutu sınırı yoktur.",
+    "step3Title": "3. Anında Aktarım",
+    "step3Desc": "Seçtiğiniz dosya, cihazlar arası doğrudan (P2P) ve güvenli bir şekilde anında aktarılmaya başlar.",
+    "features": "Özellikler",
+    "feat1Title": "Uçtan Uca Güvenlik",
+    "feat1Desc": "Dosyalarınız tarayıcılar arasında aktarılır. Arada hiçbir sunucu verilerinizi okuyamaz veya kaydedemez.",
+    "feat2Title": "Sınırsız Boyut",
+    "feat2Desc": "WebRTC teknolojisi sayesinde devasa boyutlu dosyaları bile hız sınırı olmadan doğrudan gönderin.",
+    "faq": "Sıkça Sorulan Sorular",
+    "faq1Q": "DirectlyDrop ücretli mi?",
+    "faq1A": "Hayır, tamamen ücretsizdir. Sistemi ayakta tutmak için sadece sayfalarda ufak reklamlar gösteriyoruz.",
+    "faq2Q": "Dosyalarım nerede saklanıyor?",
+    "faq2A": "Hiçbir yerde! Dosyalar doğrudan sizin cihazınızdan alıcının cihazına gider. Sunucularımız dosyalarınızı asla kaydetmez."
+  },
+  "footer": {
+    "privacy": "Gizlilik Politikası",
+    "terms": "Kullanım Koşulları",
+    "contact": "İletişim",
+    "rights": "Tüm hakları saklıdır.",
+    "description": "Cihazlar arası güvenli, hızlı ve sunucusuz dosya aktarım aracı."
   }
 }

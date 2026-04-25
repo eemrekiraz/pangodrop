@@ -90,5 +90,31 @@
     "safety": "We do not ask visitors to click ads, and ad interaction should only happen from genuine user interest.",
     "googleAds": "Google ad technologies",
     "googlePrivacy": "Google privacy"
+  },
+  "seo": {
+    "howItWorks": "How it Works?",
+    "step1Title": "1. Establish Connection",
+    "step1Desc": "Pair with the recipient using the 6-digit room code, QR code, or share link displayed on your screen.",
+    "step2Title": "2. Select Your File",
+    "step2Desc": "Once connected, choose the file you want to send. There are no file size limits or restrictions.",
+    "step3Title": "3. Instant Transfer",
+    "step3Desc": "Your selected file begins transferring instantly and securely directly between devices (P2P).",
+    "features": "Features",
+    "feat1Title": "End-to-End Security",
+    "feat1Desc": "Your files are transferred directly between browsers. No intermediary server can read or save your data.",
+    "feat2Title": "Unlimited File Size",
+    "feat2Desc": "Thanks to WebRTC technology, you can send huge files without any speed limits or restrictions.",
+    "faq": "Frequently Asked Questions",
+    "faq1Q": "Is DirectlyDrop free?",
+    "faq1A": "Yes, it is completely free. We only show non-intrusive ads to keep the system running.",
+    "faq2Q": "Where are my files stored?",
+    "faq2A": "Nowhere! Files go directly from your device to the recipient's device. Our cloud never stores your files."
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "rights": "All rights reserved.",
+    "description": "Secure, fast, and serverless peer-to-peer file transfer tool."
   }
 }

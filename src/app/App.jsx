@@ -7,11 +7,23 @@ import { MobileHomeScreen } from "../components/mobile/MobileHomeScreen";
 import { MobileTransferScreen } from "../components/mobile/MobileTransferScreen";
 import { MobileSuccessScreen } from "../components/mobile/MobileSuccessScreen";
 import { useWebRTC } from "../hooks/useWebRTC";
+import { LandingContent } from "../components/seo/LandingContent";
+import { Footer } from "../components/layout/Footer";
+import { useEffect } from "react";
+import { LegalPages } from "../components/seo/LegalPages";
 
 export default function App() {
   const { t } = useTranslation();
   const rtc = useWebRTC();
   const [activeFile, setActiveFile] = useState(null);
+
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => setCurrentHash(window.location.hash);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   const summary = useMemo(
     () => ({
@@ -39,22 +51,38 @@ export default function App() {
         ? "transfer"
         : "home";
 
+  if (currentHash === "#gizlilik" || currentHash === "#kosullar") {
+    const type = currentHash === "#gizlilik" ? "gizlilik" : "kosullar";
+    return (
+      <div className="min-h-screen bg-[#06131b]">
+        <AppShell>
+          <LegalPages type={type} />
+        </AppShell>
+      </div>
+    );
+  }           
+
   return (
     <>
       {/* MOBİL GÖRÜNÜM */}
       <div className="md:hidden flex flex-col min-h-[100dvh] bg-[#06131b]">
         <div className="flex-1">
           {mobileStage === "home" ? (
-            <MobileHomeScreen
-              identity={rtc.identity}
-              roomCode={rtc.roomCode}
-              peerId={rtc.peerId}
-              remotePeer={rtc.remotePeer}
-              connectionState={rtc.connectionState}
-              shareLink={rtc.shareLink}
-              onConnect={rtc.connectToPeer}
-              onSendFile={handleSendFile}
-            />
+            <>
+              <MobileHomeScreen
+                identity={rtc.identity}
+                roomCode={rtc.roomCode}
+                peerId={rtc.peerId}
+                remotePeer={rtc.remotePeer}
+                connectionState={rtc.connectionState}
+                shareLink={rtc.shareLink}
+                onConnect={rtc.connectToPeer}
+                onSendFile={handleSendFile}
+              />
+              {/* MOBİL İÇİN YENİ EKLENEN İÇERİK VE FOOTER */}
+              <LandingContent />
+              <Footer />
+            </>
           ) : null}
 
           {mobileStage === "transfer" ? (
@@ -113,6 +141,10 @@ export default function App() {
                 onPickFile={setActiveFile}
                 onSendFile={handleSendFile}
               />
+              
+              {/* MASAÜSTÜ İÇİN YENİ EKLENEN İÇERİK VE FOOTER */}
+              <LandingContent />
+              <Footer />
             </div>
 
           </div>
