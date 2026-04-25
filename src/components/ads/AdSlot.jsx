@@ -23,8 +23,8 @@ export function AdSlot({ label, className = "", compact = false, slotId, format 
         <ins
           className="adsbygoogle w-full h-full flex items-center justify-center"
           style={{ display: "block" }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" /* KENDİ YAYINCI KODUNU BURAYA YAZ */
-          data-ad-slot={slotId}
+          data-ad-client="pub-4656295367363190" /* KENDİ YAYINCI KODUNU BURAYA YAZ */
+          data-ad-slot={6821554676}
           data-ad-format={format}
           data-full-width-responsive="true"
         />
