@@ -33,7 +33,7 @@ function resolvePeerInput(value) {
     const asUrl = new URL(value);
     return asUrl.searchParams.get("peer") || value;
   } catch {
-    return value;
+    return value.toUpperCase();
   }
 }
 
@@ -196,9 +196,53 @@ export function useWebRTC() {
   );
 
   useEffect(() => {
-    const peer = new Peer({
+    // 1. Kendi 6 haneli (Sadece harf ve rakam) kısa kimliğimizi üretiyoruz
+    const generateShortId = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+    
+    const customPeerId = generateShortId();
+
+    // 2. PeerJS'e bu 6 haneli kodu "Gerçek Kimliğimiz" olarak veriyoruz
+    const peer = new Peer(customPeerId, {
       debug: 1
     });
+
+    peerRef.current = peer;
+
+    peer.on("open", (id) => {
+      setPeerId(id);
+      
+      // Artık ID'miz zaten 6 haneli olduğu için, oda kodumuz doğrudan ID'miz oluyor!
+      setRoomCode(id);
+      setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
+      setConnectionState("ready");
+
+      const peerFromUrl = new URLSearchParams(window.location.search).get("peer");
+      if (peerFromUrl && peerFromUrl !== id) {
+        const outbound = peer.connect(peerFromUrl, { reliable: true });
+        attachConnection(outbound);
+      }
+    });
+
+    peer.on("connection", (connection) => {
+      attachConnection(connection);
+    });
+
+    peer.on("error", () => {
+      setConnectionState("error");
+    });
+
+    return () => {
+      connectionRef.current?.close();
+      peer.destroy();
+    };
+  }, [attachConnection]);
 
     peerRef.current = peer;
 
