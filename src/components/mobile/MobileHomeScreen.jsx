@@ -105,7 +105,7 @@ export function MobileHomeScreen({
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-transparent px-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <img 
-            src="/logo.png" 
+            src="/directlydrop-icon.svg" 
             alt="Logo" 
             className="h-8 w-auto object-contain" 
           />
