@@ -204,7 +204,7 @@ export function useWebRTC() {
     const myCode = generateNumericCode();
     const customPeerId = `pangodrop-${myCode}`;
 
-    // PeerJS'e kimliğimizi "pangodrop-123456" formatında veriyoruz
+    // PeerJS'e kimliğimizi veriyoruz
     const peer = new Peer(customPeerId, {
       debug: 1
     });
@@ -213,76 +213,7 @@ export function useWebRTC() {
 
     peer.on("open", (id) => {
       setPeerId(id);
-      
-      // Kullanıcıya ekranda sadece 6 rakamı (myCode) gösteriyoruz!
-      setRoomCode(myCode);
-      setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
-      setConnectionState("ready");
-
-      const peerFromUrl = new URLSearchParams(window.location.search).get("peer");
-      if (peerFromUrl && peerFromUrl !== id) {
-        const outbound = peer.connect(peerFromUrl, { reliable: true });
-        attachConnection(outbound);
-      }
-    });
-
-    peer.on("connection", (connection) => {
-      attachConnection(connection);
-    });
-
-    peer.on("error", () => {
-      setConnectionState("error");
-    });
-
-    return () => {
-      connectionRef.current?.close();
-      peer.destroy();
-    };
-  }, [attachConnection]);
-    
-    const customPeerId = generateShortId();
-
-    // 2. PeerJS'e bu 6 haneli kodu "Gerçek Kimliğimiz" olarak veriyoruz
-    const peer = new Peer(customPeerId, {
-      debug: 1
-    });
-
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      setPeerId(id);
-      
-      // Artık ID'miz zaten 6 haneli olduğu için, oda kodumuz doğrudan ID'miz oluyor!
-      setRoomCode(id);
-      setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
-      setConnectionState("ready");
-
-      const peerFromUrl = new URLSearchParams(window.location.search).get("peer");
-      if (peerFromUrl && peerFromUrl !== id) {
-        const outbound = peer.connect(peerFromUrl, { reliable: true });
-        attachConnection(outbound);
-      }
-    });
-
-    peer.on("connection", (connection) => {
-      attachConnection(connection);
-    });
-
-    peer.on("error", () => {
-      setConnectionState("error");
-    });
-
-    return () => {
-      connectionRef.current?.close();
-      peer.destroy();
-    };
-  }, [attachConnection]);
-
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      setPeerId(id);
-      setRoomCode(generateRoomCode(id));
+      setRoomCode(myCode); // Kullanıcı sadece myCode (6 rakam) görecek
       setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
       setConnectionState("ready");
 
@@ -396,7 +327,6 @@ export function useWebRTC() {
           remainingSeconds
         });
 
-        // This yield keeps the UI responsive until we move chunking into a worker.
         await wait(0);
       }
 
