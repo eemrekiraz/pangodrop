@@ -104,9 +104,11 @@ export function MobileHomeScreen({
     <div className="relative min-h-[max(884px,100dvh)] overflow-hidden bg-[color:var(--surface-base)] text-[color:var(--text-primary)] md:hidden">
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-transparent px-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10">
-            <div className="h-3.5 w-3.5 rounded-full border-2 border-cyan-400" />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            className="h-8 w-auto object-contain" 
+          />
           <h1 className="text-xl font-bold tracking-tight text-cyan-400">DirectlyDrop</h1>
         </div>
 
