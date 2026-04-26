@@ -1,0 +1,1 @@
+(function(){"use strict";let e=null,s=0,t=0,n=0;self.onmessage=async a=>{const{type:l,file:c,chunkSize:f}=a.data;if(l==="init")e=c,s=f,t=0,n=0,self.postMessage({type:"ready"});else if(l==="next"){if(!e||t>=e.size){self.postMessage({type:"done"});return}const i=await e.slice(t,t+e.chunkSize||s).arrayBuffer();self.postMessage({type:"chunk",index:n,payload:i},[i]),t+=s,n+=1}}})();
