@@ -38,7 +38,8 @@ function RoomDigit({ value, onChange, onKeyDown, inputRef }) {
         onChange({ target: { value: val } });
       }}
       onKeyDown={onKeyDown}
-      className="h-14 w-12 rounded-none border-0 border-b-2 border-[rgba(132,147,150,0.35)] bg-transparent text-center text-2xl font-semibold text-[color:var(--text-primary)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-[color:var(--accent)]"
+      // UI GÜNCELLEMESİ: 7 kutu sığsın diye w-12 yerine w-10 yaptık.
+      className="h-14 w-10 sm:w-12 rounded-none border-0 border-b-2 border-[rgba(132,147,150,0.35)] bg-transparent text-center text-2xl font-semibold text-[color:var(--text-primary)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-[color:var(--accent)]"
     />
   );
 }
@@ -54,7 +55,9 @@ export function MobileHomeScreen({
   onSendFile
 }) {
   const { t } = useTranslation();
-  const [roomDigits, setRoomDigits] = useState(() => Array(6).fill(""));
+  
+  // MANTIK GÜNCELLEMESİ: Array(6) değerini Array(7) olarak değiştirdik.
+  const [roomDigits, setRoomDigits] = useState(() => Array(7).fill(""));
   const [peerInput, setPeerInput] = useState("");
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -220,7 +223,7 @@ export function MobileHomeScreen({
                 isSheetExpanded ? "max-h-[58dvh]" : "max-h-[22rem]"
               }`}
             >
-              <div className="flex justify-between gap-2 px-2">
+              <div className="flex justify-between gap-1 sm:gap-2 px-1 sm:px-2">
                 {roomDigits.map((digit, index) => (
                   <RoomDigit
                     key={index}
