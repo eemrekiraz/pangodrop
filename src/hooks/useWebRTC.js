@@ -234,39 +234,62 @@ export function useWebRTC() {
     [attachConnection]
   );
 
-  // ... (Aşağıdaki sendFile ve diğer kısımlar tamamen aynı kalıyor)
   const sendFile = useCallback(
-    async (file) => {
+    async (fileOrFiles) => {
       const connection = connectionRef.current;
-      if (!connection?.open || !file) return;
+      if (!connection?.open || !fileOrFiles) return;
 
-      const transferId = crypto.randomUUID();
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-      const startedAt = performance.now();
-      let sentBytes = 0;
+      // Tek dosya veya dizi gelme ihtimaline karşı veriyi diziye çevir
+      const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
+      if (files.length === 0) return;
+
       cancelRequestedRef.current = false;
-      outgoingTransferIdRef.current = transferId;
 
-      setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
+      // Dosyaları sırayla (kuyruk mantığıyla) gönder
+      for (let i = 0; i < files.length; i++) {
+        if (cancelRequestedRef.current) break;
 
-      connection.send({ type: "file-meta", transferId, fileName: file.name, fileType: file.type || "application/octet-stream", fileSize: file.size, totalChunks });
-
-      for await (const chunk of chunkFile(file, CHUNK_SIZE)) {
-        if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; return; }
-        while (connection.dataChannel?.bufferedAmount > CHUNK_SIZE * 4) { await wait(16); }
+        const file = files[i];
+        const transferId = crypto.randomUUID();
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        const startedAt = performance.now();
+        let sentBytes = 0;
         
-        sentBytes += chunk.payload.byteLength;
-        const elapsedSeconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
-        const speedBytesPerSecond = sentBytes / elapsedSeconds;
-        const remainingSeconds = Math.max(file.size - sentBytes, 0) / speedBytesPerSecond;
+        outgoingTransferIdRef.current = transferId;
 
-        connection.send({ type: "file-chunk", transferId, index: chunk.index, payload: chunk.payload, throughput: speedBytesPerSecond });
-        setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: sentBytes, percent: (sentBytes / file.size) * 100, speedBytesPerSecond, remainingSeconds });
-        await wait(0);
+        setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
+
+        connection.send({ type: "file-meta", transferId, fileName: file.name, fileType: file.type || "application/octet-stream", fileSize: file.size, totalChunks });
+
+        for await (const chunk of chunkFile(file, CHUNK_SIZE)) {
+          if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
+          while (connection.dataChannel?.bufferedAmount > CHUNK_SIZE * 4) { await wait(16); }
+          
+          sentBytes += chunk.payload.byteLength;
+          const elapsedSeconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
+          const speedBytesPerSecond = sentBytes / elapsedSeconds;
+          const remainingSeconds = Math.max(file.size - sentBytes, 0) / speedBytesPerSecond;
+
+          connection.send({ type: "file-chunk", transferId, index: chunk.index, payload: chunk.payload, throughput: speedBytesPerSecond });
+          setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: sentBytes, percent: (sentBytes / file.size) * 100, speedBytesPerSecond, remainingSeconds });
+          await wait(0);
+        }
+
+        if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
+
+        connection.send({ type: "file-complete", transferId });
+
+        // YENİ: Karşı tarafın dosyayı indirip "tamamdır aldım (ack)" demesini bekle!
+        while (outgoingTransferIdRef.current === transferId) {
+          if (cancelRequestedRef.current) break;
+          await wait(100);
+        }
+        
+        // Sıradaki dosyaya geçmeden önce bağlantı nefes alsın diye 500ms bekle
+        if (i < files.length - 1) {
+          await wait(500);
+        }
       }
-
-      if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; return; }
-      connection.send({ type: "file-complete", transferId });
     },
     []
   );

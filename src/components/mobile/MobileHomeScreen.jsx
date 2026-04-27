@@ -308,12 +308,15 @@ export function MobileHomeScreen({
             <input
               ref={fileInputRef}
               type="file"
+              multiple // BİRDEN FAZLA SEÇİM İZNİ EKLENDİ
               className="hidden"
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  onSendFile(file);
+                // SEÇİLEN DOSYALARI DİZİYE ÇEVİRİP GÖNDER
+                const files = Array.from(event.target.files || []);
+                if (files.length > 0) {
+                  onSendFile(files);
                 }
+                event.target.value = ''; // Input'u temizle
               }}
             />
           </motion.div>

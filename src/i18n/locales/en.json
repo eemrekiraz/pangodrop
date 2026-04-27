@@ -33,6 +33,7 @@
     "connectionReady": "Connection ready"
   },
   "transfer": {
+    "maxFilesAlert": "You can send up to 3 files at a time. Only the first 3 files have been queued.",
     "emptyTitle": "No file selected",
     "unknownPeer": "Unknown peer",
     "ready": "Ready to send",

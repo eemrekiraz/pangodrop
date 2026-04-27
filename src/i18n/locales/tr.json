@@ -33,6 +33,7 @@
     "connectionReady": "Ba\u011flant\u0131 haz\u0131r"
   },
   "transfer": {
+    "maxFilesAlert": "Tek seferde en fazla 3 dosya gönderebilirsiniz. Sadece ilk 3 dosya sıraya alındı.",
     "emptyTitle": "Dosya se\u00e7ilmedi",
     "unknownPeer": "Bilinmeyen e\u015f",
     "ready": "G\u00f6nderime haz\u0131r",

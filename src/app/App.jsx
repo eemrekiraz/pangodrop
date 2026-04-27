@@ -34,9 +34,20 @@ export default function App() {
     [activeFile?.name, activeFile?.size, rtc.remotePeer?.name, rtc.transfer.fileName, rtc.transfer.totalBytes, t]
   );
 
-  const handleSendFile = async (file) => {
-    setActiveFile(file);
-    await rtc.sendFile(file);
+  const handleSendFile = async (filesInput) => {
+    // Gelen veriyi diziye çevir
+    const filesArray = Array.isArray(filesInput) ? filesInput : [filesInput];
+    
+    // 3 Dosya sınırını uygula
+    const filesToSend = filesArray.slice(0, 3);
+    
+    if (filesArray.length > 3) {
+      alert(t("transfer.maxFilesAlert"));
+    }
+
+    // UI çökmesin diye sadece ilk dosyayı vitrine koy
+    setActiveFile(filesToSend[0]); 
+    await rtc.sendFile(filesToSend);
   };
 
   const handleCloseTransfer = () => {
