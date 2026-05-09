@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/layout/AppShell";
 import { RadarScreen } from "../components/discovery/RadarScreen";
@@ -9,8 +9,8 @@ import { MobileSuccessScreen } from "../components/mobile/MobileSuccessScreen";
 import { useWebRTC } from "../hooks/useWebRTC";
 import { LandingContent } from "../components/seo/LandingContent";
 import { Footer } from "../components/layout/Footer";
-import { useEffect } from "react";
 import { LegalPages } from "../components/seo/LegalPages";
+import { CookieConsent } from "../components/common/CookieConsent";
 
 export default function App() {
   const { t } = useTranslation();
@@ -69,6 +69,8 @@ export default function App() {
         <AppShell>
           <LegalPages type={type} />
         </AppShell>
+        {/* Yasal sayfalarda da çerez onayı çıksın */}
+        <CookieConsent />
       </div>
     );
   }           
@@ -161,6 +163,9 @@ export default function App() {
           </div>
         </AppShell>
       </div>
+
+      {/* İŞTE ALTIN VURUŞ: Tüm uygulamanın en altına Çerez Onay Çubuğunu Ekledik! */}
+      <CookieConsent />
     </>
   );
 }
