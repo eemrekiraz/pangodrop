@@ -1,34 +1,21 @@
-const ADJECTIVES = [
-  "Blue",
-  "Sunny",
-  "Nova",
-  "Swift",
-  "Luna",
-  "Velvet",
-  "Polar",
-  "Echo"
+// En temel, evrensel ve sade renkler
+const COLORS = [
+  { name: "Red", emoji: "🔴" },
+  { name: "Blue", emoji: "🔵" },
+  { name: "Green", emoji: "🟢" },
+  { name: "Yellow", emoji: "🟡" },
+  { name: "Purple", emoji: "🟣" },
+  { name: "Orange", emoji: "🟠" },
+  { name: "Black", emoji: "⚫" },
+  { name: "White", emoji: "⚪" },
+  { name: "Brown", emoji: "🟤" }
 ];
-
-const ANIMALS = [
-  "Panda",
-  "Fox",
-  "Otter",
-  "Owl",
-  "Koala",
-  "Lynx",
-  "Whale",
-  "Robin"
-];
-
-const AVATARS = ["P", "F", "O", "W", "K", "L", "R", "S"];
 
 export function createRandomIdentity() {
-  const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-  const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-  const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+  const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
   return {
-    name: `${adjective} ${animal}`,
-    avatar
+    name: color.name,
+    avatar: color.emoji
   };
 }
