@@ -3,7 +3,6 @@ import Peer from "peerjs";
 import { createRandomIdentity } from "../lib/identity/randomIdentity";
 import { triggerTransferHaptics } from "../lib/utils/vibration";
 
-// Dışarıdaki chunker'ı es geçiyoruz, en güvenli WebRTC limiti olan 16KB'ı sabitliyoruz
 const SAFE_CHUNK_SIZE = 16384; 
 
 const INITIAL_TRANSFER = {
@@ -41,15 +40,15 @@ export function useWebRTC() {
   const cancelRequestedRef = useRef(false);
   const outgoingTransferIdRef = useRef(null);
   const timeoutRef = useRef(null);
-
-  // UI kilitlenmesini önlemek için güncelleme zamanlayıcısı
   const lastUiUpdateRef = useRef(0);
 
   const incomingRef = useRef({
     transferId: null,
     meta: null,
-    chunks: [], // Boşluksuz dizi
-    receivedCount: 0
+    chunks: [],
+    receivedCount: 0,
+    fileHandle: null,
+    writable: null
   });
 
   const [peerId, setPeerId] = useState("");
@@ -59,10 +58,22 @@ export function useWebRTC() {
   const [remotePeer, setRemotePeer] = useState(null);
   const [transfer, setTransfer] = useState(INITIAL_TRANSFER);
 
+  // TEMİZLİK: OPFS (Hard disk) üzerindeki geçici kalıntıları siler
   const resetTransfer = useCallback(() => {
     cancelRequestedRef.current = false;
     outgoingTransferIdRef.current = null;
-    incomingRef.current = { transferId: null, meta: null, chunks: [], receivedCount: 0 };
+
+    const incoming = incomingRef.current;
+    if (incoming.writable) {
+      incoming.writable.abort().catch(() => {});
+      if (incoming.transferId) {
+        navigator.storage.getDirectory()
+          .then(root => root.removeEntry(`temp-${incoming.transferId}`).catch(() => {}))
+          .catch(() => {});
+      }
+    }
+
+    incomingRef.current = { transferId: null, meta: null, chunks: [], receivedCount: 0, fileHandle: null, writable: null };
     lastUiUpdateRef.current = 0;
     setTransfer(INITIAL_TRANSFER);
   }, []);
@@ -86,20 +97,33 @@ export function useWebRTC() {
 
       connection.on("data", async (packet) => {
         if (!packet || typeof packet !== "object") return;
-
-        if (packet.type === "intro") {
-          setRemotePeer(packet.payload);
-          return;
-        }
+        if (packet.type === "intro") { setRemotePeer(packet.payload); return; }
 
         if (packet.type === "file-meta") {
           cancelRequestedRef.current = false;
+          let fileHandle = null;
+          let writable = null;
+
+          // YENİ: RAM YERİNE DOĞRUDAN DİSKE YAZMA (OPFS) BAŞLATILMASI
+          try {
+            if (navigator.storage && navigator.storage.getDirectory) {
+              const root = await navigator.storage.getDirectory();
+              fileHandle = await root.getFileHandle(`temp-${packet.transferId}`, { create: true });
+              writable = await fileHandle.createWritable();
+            }
+          } catch (err) {
+            console.warn("Cihaz diske yazmayı desteklemiyor, RAM kullanılıyor.", err);
+          }
+
           incomingRef.current = {
             transferId: packet.transferId,
             meta: packet,
-            chunks: [],
-            receivedCount: 0
+            chunks: writable ? null : [], // Diske yazamıyorsa eski RAM usulüne dön
+            receivedCount: 0,
+            fileHandle,
+            writable
           };
+
           setTransfer({ phase: "receiving", fileName: packet.fileName, totalBytes: packet.fileSize, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
           return;
         }
@@ -108,13 +132,17 @@ export function useWebRTC() {
           const incoming = incomingRef.current;
           if (!incoming.meta || incoming.transferId !== packet.transferId) return;
 
-          // Parçayı boşluksuz şekilde hafızaya al
-          if (!incoming.chunks[packet.index]) {
-            incoming.chunks[packet.index] = packet.payload;
+          // YENİ: GELEN PARÇAYI RAM'E DEĞİL, ANINDA DİSKE YAZ
+          if (incoming.writable) {
+            await incoming.writable.write(packet.payload);
             incoming.receivedCount++;
+          } else {
+            if (!incoming.chunks[packet.index]) {
+              incoming.chunks[packet.index] = packet.payload;
+              incoming.receivedCount++;
+            }
           }
 
-          // REACT KALKANI: UI'ı sadece 100 milisaniyede bir güncelle (Kasmayı engeller)
           const now = performance.now();
           if (now - lastUiUpdateRef.current > 100 || incoming.receivedCount === incoming.meta.totalChunks) {
             lastUiUpdateRef.current = now;
@@ -126,23 +154,35 @@ export function useWebRTC() {
             });
           }
 
-          // İNDİRME TETİĞİ: SADECE %100 EKSİKSİZ GELDİĞİNDE BİRLEŞTİR!
+          // DOSYA EKSİKSİZ TAMAMLANDIĞINDA
           if (incoming.receivedCount === incoming.meta.totalChunks) {
-            const blob = new Blob(incoming.chunks, { type: incoming.meta.fileType || "application/octet-stream" });
-            downloadBlob(blob, incoming.meta.fileName || "download");
+            let downloadTarget;
+
+            if (incoming.writable) {
+              await incoming.writable.close();
+              downloadTarget = await incoming.fileHandle.getFile(); // RAM harcamadan diskteki dosyayı çağır
+            } else {
+              downloadTarget = new Blob(incoming.chunks, { type: incoming.meta.fileType || "application/octet-stream" });
+            }
+
+            downloadBlob(downloadTarget, incoming.meta.fileName || "download");
             triggerTransferHaptics();
 
             setTransfer((current) => ({ ...current, phase: "completed", transferredBytes: current.totalBytes, percent: 100, remainingSeconds: 0 }));
             connection.send({ type: "transfer-ack", transferId: packet.transferId });
+
+            // Diske yazdığımız geçici dosyayı temizle ki cihazda yer kaplamasın
+            if (incoming.writable) {
+              try {
+                const root = await navigator.storage.getDirectory();
+                await root.removeEntry(`temp-${packet.transferId}`);
+              } catch (e) { console.error("Geçici dosya silinemedi", e); }
+            }
           }
           return;
         }
 
-        if (packet.type === "transfer-cancel") {
-          resetTransfer();
-          return;
-        }
-
+        if (packet.type === "transfer-cancel") { resetTransfer(); return; }
         if (packet.type === "transfer-ack") {
           triggerTransferHaptics();
           outgoingTransferIdRef.current = null;
@@ -160,34 +200,20 @@ export function useWebRTC() {
     const initPeer = () => {
       const myCode = Math.floor(1000000 + Math.random() * 9000000).toString();
       const customPeerId = `pangodrop-${myCode}`;
-      // Okul ve Şirket internetlerini aşmak için özel ICE/TURN Sunucuları
+      
       const peer = new Peer(customPeerId, {
         debug: 1,
         config: {
           iceServers: [
-            // 1. Standart ağlar için Google ve Twilio STUN'ları
             { urls: "stun:stun.l.google.com:19302" },
             { urls: "stun:global.stun.twilio.com:3478" },
-            
-            // 2. Okul/Şirket ağları için Açık Kaynak TURN Sunucuları (Metered OpenRelay)
-            {
-              urls: "turn:openrelay.metered.ca:80",
-              username: "openrelayproject",
-              credential: "openrelayproject"
-            },
-            {
-              urls: "turn:openrelay.metered.ca:443",
-              username: "openrelayproject",
-              credential: "openrelayproject"
-            },
-            {
-              urls: "turn:openrelay.metered.ca:443?transport=tcp",
-              username: "openrelayproject",
-              credential: "openrelayproject"
-            }
+            { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+            { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+            { urls: "turn:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
           ]
         }
       });
+      
       peerRef.current = peer;
 
       peer.on("open", (id) => {
@@ -248,9 +274,8 @@ export function useWebRTC() {
       while (offset < file.size) {
         if (cancelRequestedRef.current) break;
 
-        // AKILLI TRAFİK POLİSİ: Karşı tarafın borusu dolduysa (64KB sınırı), açılana kadar bekle!
         if (dc && dc.bufferedAmount > 65536) {
-          await new Promise(r => setTimeout(r, 10)); // 10 milisaniye nefes ver
+          await new Promise(r => setTimeout(r, 10));
           continue; 
         }
 
@@ -264,7 +289,6 @@ export function useWebRTC() {
 
         connection.send({ type: "file-chunk", transferId, index: chunkIndex, payload: buffer, throughput: speedBytesPerSecond });
 
-        // UI'ı sadece 100ms'de bir güncelle (GÖNDEREN TARAF KASMASIN DİYE)
         const now = performance.now();
         if (now - lastUiUpdateRef.current > 100) {
           lastUiUpdateRef.current = now;
@@ -277,13 +301,11 @@ export function useWebRTC() {
 
       if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
 
-      // GÖNDERİM BİTTİ ONAYI BEKLE (Alıcı Eksiksiz Birleştirip ACK Atana Kadar Buradayız)
       while (outgoingTransferIdRef.current === transferId) {
         if (cancelRequestedRef.current) break;
         await new Promise(r => setTimeout(r, 50));
       }
       
-      // Çoklu dosyalarda iki dosya arasına nefes payı
       if (i < files.length - 1) await new Promise(r => setTimeout(r, 500));
     }
   }, []);
