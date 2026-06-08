@@ -271,13 +271,15 @@ export function useWebRTC() {
       const connection = connectionRef.current;
       if (!connection?.open || !fileOrFiles) return;
 
-      // Tek dosya veya dizi gelme ihtimaline karşı veriyi diziye çevir
+      // Gelen veriyi diziye çevir
       const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
       if (files.length === 0) return;
 
       cancelRequestedRef.current = false;
 
-      // Dosyaları sırayla (kuyruk mantığıyla) gönder
+      // PeerJS'in gizli WebRTC DataChannel objesini yakala (Trafik polisi için)
+      const dc = connection.dataChannel || connection._dataChannel;
+
       for (let i = 0; i < files.length; i++) {
         if (cancelRequestedRef.current) break;
 
@@ -295,29 +297,44 @@ export function useWebRTC() {
 
         for await (const chunk of chunkFile(file, CHUNK_SIZE)) {
           if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
-          while (connection.dataChannel?.bufferedAmount > CHUNK_SIZE * 4) { await wait(16); }
           
+          // --- YENİ: AKILLI FREN SİSTEMİ (BOZUK DOSYAYI ENGELLER) ---
+          if (dc && typeof dc.bufferedAmount === 'number') {
+             // Eğer boru (buffer) 1MB'dan fazla dolduysa, karşı taraf nefes alana kadar bekle!
+             while (dc.bufferedAmount > 1024 * 1024) {
+                 await wait(50);
+             }
+          } else {
+             // Eğer tarayıcı buffer bilgisini vermiyorsa, paket kaybını önlemek için her parçada minik bir es ver.
+             await wait(5);
+          }
+          // ---------------------------------------------------------
+
           sentBytes += chunk.payload.byteLength;
           const elapsedSeconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
           const speedBytesPerSecond = sentBytes / elapsedSeconds;
           const remainingSeconds = Math.max(file.size - sentBytes, 0) / speedBytesPerSecond;
 
+          // Parçayı fırlat
           connection.send({ type: "file-chunk", transferId, index: chunk.index, payload: chunk.payload, throughput: speedBytesPerSecond });
+          
           setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: sentBytes, percent: (sentBytes / file.size) * 100, speedBytesPerSecond, remainingSeconds });
-          await wait(0);
+          
+          // Tarayıcının kilitlenmemesi için 1 milisaniye nefes
+          await wait(1);
         }
 
         if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
 
         connection.send({ type: "file-complete", transferId });
 
-        // YENİ: Karşı tarafın dosyayı indirip "tamamdır aldım (ack)" demesini bekle!
+        // Sıradaki dosyaya geçmeden önce karşı tarafın dosyayı birleştirmesini bekle
         while (outgoingTransferIdRef.current === transferId) {
           if (cancelRequestedRef.current) break;
           await wait(100);
         }
         
-        // Sıradaki dosyaya geçmeden önce bağlantı nefes alsın diye 500ms bekle
+        // Çoklu dosya gönderiminde dosyalar arası nefes payı
         if (i < files.length - 1) {
           await wait(500);
         }
