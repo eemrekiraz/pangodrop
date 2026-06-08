@@ -111,23 +111,55 @@ export function useWebRTC() {
         }
         if (packet.type === "file-chunk") {
           const incoming = incomingRef.current;
-          if (!incoming.meta || incoming.transferId !== packet.transferId) return;
+          if (!incoming.meta || incoming.transferId !== packet.transferId) {
+            return;
+          }
+
           incoming.chunks[packet.index] = packet.payload;
+          
+          // YENİ 1: Gelen parçaları tek tek sayıyoruz
+          incoming.receivedChunks = (incoming.receivedChunks || 0) + 1;
+
           setTransfer((current) => {
             const transferredBytes = current.transferredBytes + packet.payload.byteLength;
             const speed = Math.max(packet.throughput || current.speedBytesPerSecond, 0);
             const remaining = Math.max(current.totalBytes - transferredBytes, 0);
-            return { ...current, phase: "receiving", transferredBytes, percent: current.totalBytes ? (transferredBytes / current.totalBytes) * 100 : 0, speedBytesPerSecond: speed, remainingSeconds: speed > 0 ? remaining / speed : 0 };
+
+            return {
+              ...current,
+              phase: "receiving",
+              transferredBytes,
+              percent: current.totalBytes ? (transferredBytes / current.totalBytes) * 100 : 0,
+              speedBytesPerSecond: speed,
+              remainingSeconds: speed > 0 ? remaining / speed : 0
+            };
           });
+
+          // YENİ 2: Sadece TÜM parçalar eksiksiz geldiğinde dosyayı birleştir!
+          if (incoming.receivedChunks === incoming.meta.totalChunks) {
+            const blob = new Blob(incoming.chunks, {
+              type: incoming.meta?.fileType || "application/octet-stream"
+            });
+
+            downloadBlob(blob, incoming.meta?.fileName || "download");
+            triggerTransferHaptics();
+
+            setTransfer((current) => ({
+              ...current,
+              phase: "completed",
+              transferredBytes: current.totalBytes,
+              percent: 100,
+              remainingSeconds: 0
+            }));
+
+            // Karşı tarafa 'Eksiksiz aldım, sıradaki dosyaya geç' sinyali ver
+            connectionRef.current.send({ type: "transfer-ack", transferId: packet.transferId });
+          }
           return;
         }
         if (packet.type === "file-complete") {
-          const incoming = incomingRef.current;
-          const blob = new Blob(incoming.chunks, { type: incoming.meta?.fileType || "application/octet-stream" });
-          downloadBlob(blob, incoming.meta?.fileName || "download");
-          triggerTransferHaptics();
-          setTransfer((current) => ({ ...current, phase: "completed", transferredBytes: current.totalBytes, percent: 100, remainingSeconds: 0 }));
-          connection.send({ type: "transfer-ack", transferId: packet.transferId });
+          // İndirme işlemini file-chunk içinde garantiye aldığımız için
+          // eski aceleci indirme mantığını buradan sildik.
           return;
         }
         if (packet.type === "transfer-cancel") { resetTransfer(); return; }
