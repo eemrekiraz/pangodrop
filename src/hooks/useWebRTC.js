@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Peer from "peerjs";
 import { createRandomIdentity } from "../lib/identity/randomIdentity";
-// import { generateRoomCode } from "../lib/peer/roomCode"; // (Bunu artık kullanmayabilirsin, kod kendi üretiyor)
-import { chunkFile, CHUNK_SIZE } from "../lib/transfer/chunkFile";
 import { triggerTransferHaptics } from "../lib/utils/vibration";
+
+// Dışarıdaki chunker'ı es geçiyoruz, en güvenli WebRTC limiti olan 16KB'ı sabitliyoruz
+const SAFE_CHUNK_SIZE = 16384; 
 
 const INITIAL_TRANSFER = {
   phase: "idle",
@@ -14,10 +15,6 @@ const INITIAL_TRANSFER = {
   speedBytesPerSecond: 0,
   remainingSeconds: 0
 };
-
-function wait(ms) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
 
 function downloadBlob(blob, fileName) {
   const url = URL.createObjectURL(blob);
@@ -43,14 +40,16 @@ export function useWebRTC() {
   const connectionRef = useRef(null);
   const cancelRequestedRef = useRef(false);
   const outgoingTransferIdRef = useRef(null);
-  
-  // YENİ: Bekleme odası sayacını hafızada tutmak için
-  const timeoutRef = useRef(null); 
+  const timeoutRef = useRef(null);
+
+  // UI kilitlenmesini önlemek için güncelleme zamanlayıcısı
+  const lastUiUpdateRef = useRef(0);
 
   const incomingRef = useRef({
     transferId: null,
     meta: null,
-    chunks: []
+    chunks: [], // Boşluksuz dizi
+    receivedCount: 0
   });
 
   const [peerId, setPeerId] = useState("");
@@ -63,25 +62,18 @@ export function useWebRTC() {
   const resetTransfer = useCallback(() => {
     cancelRequestedRef.current = false;
     outgoingTransferIdRef.current = null;
-    incomingRef.current = {
-      transferId: null,
-      meta: null,
-      chunks: []
-    };
+    incomingRef.current = { transferId: null, meta: null, chunks: [], receivedCount: 0 };
+    lastUiUpdateRef.current = 0;
     setTransfer(INITIAL_TRANSFER);
   }, []);
 
   const attachConnection = useCallback(
     (connection) => {
-      if (!connection) {
-        return;
-      }
+      if (!connection) return;
 
-      // --- C ŞIKKI KURTARICI: Biri bağlandığı an sayacı durdur! ---
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
-        console.log("Bağlantı sağlandı! 10 dakikalık zaman aşımı iptal edildi.");
       }
 
       connectionRef.current = connection;
@@ -89,80 +81,68 @@ export function useWebRTC() {
 
       connection.on("open", () => {
         setConnectionState("connected");
-        connection.send({
-          type: "intro",
-          payload: {
-            name: identity.name,
-            avatar: identity.avatar,
-            peerId: peerRef.current?.id || ""
-          }
-        });
+        connection.send({ type: "intro", payload: { name: identity.name, avatar: identity.avatar, peerId: peerRef.current?.id || "" } });
       });
 
       connection.on("data", async (packet) => {
-        // ... (Eski data dinleme kodların tamamen aynı kalıyor)
         if (!packet || typeof packet !== "object") return;
-        if (packet.type === "intro") { setRemotePeer(packet.payload); return; }
+
+        if (packet.type === "intro") {
+          setRemotePeer(packet.payload);
+          return;
+        }
+
         if (packet.type === "file-meta") {
           cancelRequestedRef.current = false;
-          incomingRef.current = { transferId: packet.transferId, meta: packet, chunks: new Array(packet.totalChunks) };
+          incomingRef.current = {
+            transferId: packet.transferId,
+            meta: packet,
+            chunks: [],
+            receivedCount: 0
+          };
           setTransfer({ phase: "receiving", fileName: packet.fileName, totalBytes: packet.fileSize, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
           return;
         }
+
         if (packet.type === "file-chunk") {
           const incoming = incomingRef.current;
-          if (!incoming.meta || incoming.transferId !== packet.transferId) {
-            return;
+          if (!incoming.meta || incoming.transferId !== packet.transferId) return;
+
+          // Parçayı boşluksuz şekilde hafızaya al
+          if (!incoming.chunks[packet.index]) {
+            incoming.chunks[packet.index] = packet.payload;
+            incoming.receivedCount++;
           }
 
-          incoming.chunks[packet.index] = packet.payload;
-          
-          // YENİ 1: Gelen parçaları tek tek sayıyoruz
-          incoming.receivedChunks = (incoming.receivedChunks || 0) + 1;
-
-          setTransfer((current) => {
-            const transferredBytes = current.transferredBytes + packet.payload.byteLength;
-            const speed = Math.max(packet.throughput || current.speedBytesPerSecond, 0);
-            const remaining = Math.max(current.totalBytes - transferredBytes, 0);
-
-            return {
-              ...current,
-              phase: "receiving",
-              transferredBytes,
-              percent: current.totalBytes ? (transferredBytes / current.totalBytes) * 100 : 0,
-              speedBytesPerSecond: speed,
-              remainingSeconds: speed > 0 ? remaining / speed : 0
-            };
-          });
-
-          // YENİ 2: Sadece TÜM parçalar eksiksiz geldiğinde dosyayı birleştir!
-          if (incoming.receivedChunks === incoming.meta.totalChunks) {
-            const blob = new Blob(incoming.chunks, {
-              type: incoming.meta?.fileType || "application/octet-stream"
+          // REACT KALKANI: UI'ı sadece 100 milisaniyede bir güncelle (Kasmayı engeller)
+          const now = performance.now();
+          if (now - lastUiUpdateRef.current > 100 || incoming.receivedCount === incoming.meta.totalChunks) {
+            lastUiUpdateRef.current = now;
+            setTransfer((current) => {
+              const transferredBytes = incoming.receivedCount * SAFE_CHUNK_SIZE;
+              const speed = packet.throughput || current.speedBytesPerSecond;
+              const remaining = Math.max(current.totalBytes - transferredBytes, 0);
+              return { ...current, phase: "receiving", transferredBytes, percent: Math.min((transferredBytes / current.totalBytes) * 100, 100), speedBytesPerSecond: speed, remainingSeconds: speed > 0 ? remaining / speed : 0 };
             });
+          }
 
-            downloadBlob(blob, incoming.meta?.fileName || "download");
+          // İNDİRME TETİĞİ: SADECE %100 EKSİKSİZ GELDİĞİNDE BİRLEŞTİR!
+          if (incoming.receivedCount === incoming.meta.totalChunks) {
+            const blob = new Blob(incoming.chunks, { type: incoming.meta.fileType || "application/octet-stream" });
+            downloadBlob(blob, incoming.meta.fileName || "download");
             triggerTransferHaptics();
 
-            setTransfer((current) => ({
-              ...current,
-              phase: "completed",
-              transferredBytes: current.totalBytes,
-              percent: 100,
-              remainingSeconds: 0
-            }));
-
-            // Karşı tarafa 'Eksiksiz aldım, sıradaki dosyaya geç' sinyali ver
-            connectionRef.current.send({ type: "transfer-ack", transferId: packet.transferId });
+            setTransfer((current) => ({ ...current, phase: "completed", transferredBytes: current.totalBytes, percent: 100, remainingSeconds: 0 }));
+            connection.send({ type: "transfer-ack", transferId: packet.transferId });
           }
           return;
         }
-        if (packet.type === "file-complete") {
-          // İndirme işlemini file-chunk içinde garantiye aldığımız için
-          // eski aceleci indirme mantığını buradan sildik.
+
+        if (packet.type === "transfer-cancel") {
+          resetTransfer();
           return;
         }
-        if (packet.type === "transfer-cancel") { resetTransfer(); return; }
+
         if (packet.type === "transfer-ack") {
           triggerTransferHaptics();
           outgoingTransferIdRef.current = null;
@@ -170,184 +150,122 @@ export function useWebRTC() {
         }
       });
 
-      connection.on("close", () => {
-        connectionRef.current = null;
-        setRemotePeer(null);
-        setConnectionState("ready");
-        resetTransfer();
-      });
-
-      connection.on("error", () => {
-        setConnectionState("error");
-      });
+      connection.on("close", () => { connectionRef.current = null; setRemotePeer(null); setConnectionState("ready"); resetTransfer(); });
+      connection.on("error", () => setConnectionState("error"));
     },
     [identity.avatar, identity.name, resetTransfer]
   );
 
   useEffect(() => {
-    // Kapsayıcı bir başlatma fonksiyonu oluşturduk (Çakışma olursa kendini tekrar çağırabilsin diye)
     const initPeer = () => {
-      // 7 HANELİ RAKAM ÜRETİCİSİ (1.000.000 - 9.999.999 arası 9 milyon ihtimal)
-      const generateNumericCode = () => {
-        return Math.floor(1000000 + Math.random() * 9000000).toString();
-      };
-      
-      const myCode = generateNumericCode();
+      const myCode = Math.floor(1000000 + Math.random() * 9000000).toString();
       const customPeerId = `pangodrop-${myCode}`;
-
       const peer = new Peer(customPeerId, { debug: 1 });
       peerRef.current = peer;
 
       peer.on("open", (id) => {
         setPeerId(myCode);
-        setRoomCode(myCode); // Kullanıcı sadece 7 rakam görecek
+        setRoomCode(myCode);
         setShareLink(`${window.location.origin}?peer=${encodeURIComponent(id)}`);
         setConnectionState("ready");
-
-        // --- C ŞIKKI: AKILLI BEKLEME SÜRESİ (10 DAKİKA) ---
-        timeoutRef.current = setTimeout(() => {
-          peer.destroy();
-          alert("Güvenlik nedeniyle 10 dakikalık bekleme süresi doldu. Lütfen sayfayı yenileyerek yeni bir kod alın.");
-          setConnectionState("error");
-        }, 10 * 60 * 1000);
+        timeoutRef.current = setTimeout(() => { peer.destroy(); setConnectionState("error"); }, 10 * 60 * 1000);
 
         const peerFromUrl = new URLSearchParams(window.location.search).get("peer");
-        if (peerFromUrl && peerFromUrl !== id) {
-          const outbound = peer.connect(peerFromUrl, { reliable: true });
-          attachConnection(outbound);
-        }
+        if (peerFromUrl && peerFromUrl !== id) attachConnection(peer.connect(peerFromUrl, { reliable: true }));
       });
-
-      peer.on("connection", (connection) => {
-        attachConnection(connection);
-      });
-
+      peer.on("connection", attachConnection);
       peer.on("error", (err) => {
-        // --- B ŞIKKI: ÇAKIŞMA KALKANI ---
-        if (err.type === "unavailable-id") {
-          console.warn("Milyonda bir ihtimal gerçekleşti! Kod başkasında var, gizlice yenisi üretiliyor...");
-          peer.destroy(); // Çakışan bağlantıyı yok et
-          initPeer(); // Baştan temiz bir şekilde tekrar başlat
-        } else {
-          setConnectionState("error");
-        }
+        if (err.type === "unavailable-id") { peer.destroy(); initPeer(); }
+        else { setConnectionState("error"); }
       });
     };
-
-    initPeer(); // Sistemi ilk kez çalıştır
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      connectionRef.current?.close();
-      peerRef.current?.destroy();
-    };
+    initPeer();
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); connectionRef.current?.close(); peerRef.current?.destroy(); };
   }, [attachConnection]);
 
-  const connectToPeer = useCallback(
-    (value) => {
-      let targetPeerId = value.trim();
-      
-      // YENİ: EĞER KULLANICI SADECE 6 VEYA 7 RAKAM GİRDİYSE ÖNEK EKLE 
-      // (Geçiş sürecinde 6 girenleri de bozmamak için {6,7} yaptık)
-      if (/^\d{6,7}$/.test(targetPeerId)) {
-        targetPeerId = `pangodrop-${targetPeerId}`;
-      } else {
-        targetPeerId = resolvePeerInput(targetPeerId);
-      }
+  const connectToPeer = useCallback((value) => {
+    let targetPeerId = value.trim();
+    if (/^\d{6,7}$/.test(targetPeerId)) targetPeerId = `pangodrop-${targetPeerId}`;
+    else targetPeerId = resolvePeerInput(targetPeerId);
+    if (!targetPeerId || !peerRef.current) return false;
+    attachConnection(peerRef.current.connect(targetPeerId, { reliable: true }));
+    return true;
+  }, [attachConnection]);
 
-      if (!targetPeerId || !peerRef.current) {
-        return false;
-      }
+  const sendFile = useCallback(async (fileOrFiles) => {
+    const connection = connectionRef.current;
+    if (!connection?.open || !fileOrFiles) return;
 
-      const connection = peerRef.current.connect(targetPeerId, { reliable: true });
-      attachConnection(connection);
-      return true;
-    },
-    [attachConnection]
-  );
+    const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
+    if (files.length === 0) return;
 
-  const sendFile = useCallback(
-    async (fileOrFiles) => {
-      const connection = connectionRef.current;
-      if (!connection?.open || !fileOrFiles) return;
+    cancelRequestedRef.current = false;
+    const dc = connection.dataChannel || connection._dataChannel;
 
-      // Gelen veriyi diziye çevir
-      const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
-      if (files.length === 0) return;
+    for (let i = 0; i < files.length; i++) {
+      if (cancelRequestedRef.current) break;
 
-      cancelRequestedRef.current = false;
+      const file = files[i];
+      const transferId = crypto.randomUUID();
+      const totalChunks = Math.ceil(file.size / SAFE_CHUNK_SIZE);
+      let sentBytes = 0;
+      const startedAt = performance.now();
 
-      // PeerJS'in gizli WebRTC DataChannel objesini yakala (Trafik polisi için)
-      const dc = connection.dataChannel || connection._dataChannel;
+      outgoingTransferIdRef.current = transferId;
+      setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
+      connection.send({ type: "file-meta", transferId, fileName: file.name, fileType: file.type || "application/octet-stream", fileSize: file.size, totalChunks });
 
-      for (let i = 0; i < files.length; i++) {
+      let offset = 0;
+      let chunkIndex = 0;
+
+      while (offset < file.size) {
         if (cancelRequestedRef.current) break;
 
-        const file = files[i];
-        const transferId = crypto.randomUUID();
-        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-        const startedAt = performance.now();
-        let sentBytes = 0;
-        
-        outgoingTransferIdRef.current = transferId;
+        // AKILLI TRAFİK POLİSİ: Karşı tarafın borusu dolduysa (64KB sınırı), açılana kadar bekle!
+        if (dc && dc.bufferedAmount > 65536) {
+          await new Promise(r => setTimeout(r, 10)); // 10 milisaniye nefes ver
+          continue; 
+        }
 
-        setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: 0, percent: 0, speedBytesPerSecond: 0, remainingSeconds: 0 });
+        const slice = file.slice(offset, offset + SAFE_CHUNK_SIZE);
+        const buffer = await slice.arrayBuffer();
 
-        connection.send({ type: "file-meta", transferId, fileName: file.name, fileType: file.type || "application/octet-stream", fileSize: file.size, totalChunks });
+        sentBytes += buffer.byteLength;
+        const elapsedSeconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
+        const speedBytesPerSecond = sentBytes / elapsedSeconds;
+        const remainingSeconds = Math.max(file.size - sentBytes, 0) / speedBytesPerSecond;
 
-        for await (const chunk of chunkFile(file, CHUNK_SIZE)) {
-          if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
-          
-          // --- YENİ: AKILLI FREN SİSTEMİ (BOZUK DOSYAYI ENGELLER) ---
-          if (dc && typeof dc.bufferedAmount === 'number') {
-             // Eğer boru (buffer) 1MB'dan fazla dolduysa, karşı taraf nefes alana kadar bekle!
-             while (dc.bufferedAmount > 1024 * 1024) {
-                 await wait(50);
-             }
-          } else {
-             // Eğer tarayıcı buffer bilgisini vermiyorsa, paket kaybını önlemek için her parçada minik bir es ver.
-             await wait(5);
-          }
-          // ---------------------------------------------------------
+        connection.send({ type: "file-chunk", transferId, index: chunkIndex, payload: buffer, throughput: speedBytesPerSecond });
 
-          sentBytes += chunk.payload.byteLength;
-          const elapsedSeconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
-          const speedBytesPerSecond = sentBytes / elapsedSeconds;
-          const remainingSeconds = Math.max(file.size - sentBytes, 0) / speedBytesPerSecond;
-
-          // Parçayı fırlat
-          connection.send({ type: "file-chunk", transferId, index: chunk.index, payload: chunk.payload, throughput: speedBytesPerSecond });
-          
+        // UI'ı sadece 100ms'de bir güncelle (GÖNDEREN TARAF KASMASIN DİYE)
+        const now = performance.now();
+        if (now - lastUiUpdateRef.current > 100) {
+          lastUiUpdateRef.current = now;
           setTransfer({ phase: "sending", fileName: file.name, totalBytes: file.size, transferredBytes: sentBytes, percent: (sentBytes / file.size) * 100, speedBytesPerSecond, remainingSeconds });
-          
-          // Tarayıcının kilitlenmemesi için 1 milisaniye nefes
-          await wait(1);
         }
 
-        if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
-
-        connection.send({ type: "file-complete", transferId });
-
-        // Sıradaki dosyaya geçmeden önce karşı tarafın dosyayı birleştirmesini bekle
-        while (outgoingTransferIdRef.current === transferId) {
-          if (cancelRequestedRef.current) break;
-          await wait(100);
-        }
-        
-        // Çoklu dosya gönderiminde dosyalar arası nefes payı
-        if (i < files.length - 1) {
-          await wait(500);
-        }
+        offset += SAFE_CHUNK_SIZE;
+        chunkIndex++;
       }
-    },
-    []
-  );
+
+      if (cancelRequestedRef.current) { outgoingTransferIdRef.current = null; break; }
+
+      // GÖNDERİM BİTTİ ONAYI BEKLE (Alıcı Eksiksiz Birleştirip ACK Atana Kadar Buradayız)
+      while (outgoingTransferIdRef.current === transferId) {
+        if (cancelRequestedRef.current) break;
+        await new Promise(r => setTimeout(r, 50));
+      }
+      
+      // Çoklu dosyalarda iki dosya arasına nefes payı
+      if (i < files.length - 1) await new Promise(r => setTimeout(r, 500));
+    }
+  }, []);
 
   const cancelTransfer = useCallback(() => {
     cancelRequestedRef.current = true;
     const connection = connectionRef.current;
     const transferId = outgoingTransferIdRef.current || incomingRef.current.transferId;
-    if (connection?.open && transferId) { connection.send({ type: "transfer-cancel", transferId }); }
+    if (connection?.open && transferId) connection.send({ type: "transfer-cancel", transferId });
     resetTransfer();
   }, [resetTransfer]);
 
