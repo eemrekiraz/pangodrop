@@ -160,7 +160,34 @@ export function useWebRTC() {
     const initPeer = () => {
       const myCode = Math.floor(1000000 + Math.random() * 9000000).toString();
       const customPeerId = `pangodrop-${myCode}`;
-      const peer = new Peer(customPeerId, { debug: 1 });
+      // Okul ve Şirket internetlerini aşmak için özel ICE/TURN Sunucuları
+      const peer = new Peer(customPeerId, {
+        debug: 1,
+        config: {
+          iceServers: [
+            // 1. Standart ağlar için Google ve Twilio STUN'ları
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:global.stun.twilio.com:3478" },
+            
+            // 2. Okul/Şirket ağları için Açık Kaynak TURN Sunucuları (Metered OpenRelay)
+            {
+              urls: "turn:openrelay.metered.ca:80",
+              username: "openrelayproject",
+              credential: "openrelayproject"
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443",
+              username: "openrelayproject",
+              credential: "openrelayproject"
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443?transport=tcp",
+              username: "openrelayproject",
+              credential: "openrelayproject"
+            }
+          ]
+        }
+      });
       peerRef.current = peer;
 
       peer.on("open", (id) => {
