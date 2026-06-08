@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { QrCode, ScanLine, SendHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -10,12 +10,13 @@ import { QrConnectSheet } from "../discovery/QrConnectSheet";
 import { RoomCodePanel } from "../discovery/RoomCodePanel";
 import { formatBytes } from "../../lib/utils/formatBytes";
 import { generateRoomCode } from "../../lib/peer/roomCode";
+import { triggerTransferHaptics } from "../../lib/utils/vibration";
 
-function DeviceGlyph({ icon }) {
+function DeviceGlyph({ icon, connected }) {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-[rgba(32,31,31,0.6)] shadow-lg backdrop-blur-md">
+    <div className={`flex h-12 w-12 items-center justify-center rounded-full border bg-[rgba(32,31,31,0.6)] shadow-lg backdrop-blur-md transition-colors duration-700 ${connected ? 'border-green-400/30' : 'border-white/10'}`}>
       <div
-        className={`h-5 w-5 ${icon === "laptop" ? "rounded-sm border-2 border-cyan-300" : "rounded-[0.4rem] border-2 border-cyan-300"}`}
+        className={`h-5 w-5 transition-colors duration-700 ${icon === "laptop" ? "rounded-sm border-2" : "rounded-[0.4rem] border-2"} ${connected ? 'border-green-400' : 'border-cyan-300'}`}
       />
     </div>
   );
@@ -31,14 +32,10 @@ function RoomDigit({ value, onChange, onKeyDown, inputRef }) {
       pattern="[0-9]*" 
       placeholder="-"
       onChange={(e) => {
-        // Gelen karakterleri sadece rakam olacak şekilde temizle
         const val = e.target.value.replace(/[^0-9]/g, ''); 
-        
-        // Ana sayfanın (parent) beklediği formata (event objesi taklidi) çevirerek gönder!
         onChange({ target: { value: val } });
       }}
       onKeyDown={onKeyDown}
-      // UI GÜNCELLEMESİ: 7 kutu sığsın diye w-12 yerine w-10 yaptık.
       className="h-14 w-10 sm:w-12 rounded-none border-0 border-b-2 border-[rgba(132,147,150,0.35)] bg-transparent text-center text-2xl font-semibold text-[color:var(--text-primary)] outline-none transition placeholder:text-[color:var(--text-muted)] focus:border-[color:var(--accent)]"
     />
   );
@@ -55,14 +52,21 @@ export function MobileHomeScreen({
   onSendFile
 }) {
   const { t } = useTranslation();
-  
-  // MANTIK GÜNCELLEMESİ: Array(6) değerini Array(7) olarak değiştirdik.
   const [roomDigits, setRoomDigits] = useState(() => Array(7).fill(""));
   const [peerInput, setPeerInput] = useState("");
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const fileInputRef = useRef(null);
   const digitRefs = useRef([]);
+
+  const isConnected = connectionState === "connected";
+
+  // BAĞLANTI ANINDA TİTREŞİM EKLENDİ
+  useEffect(() => {
+    if (isConnected) {
+      triggerTransferHaptics();
+    }
+  }, [isConnected]);
 
   const devices = useMemo(() => {
     if (!remotePeer) {
@@ -124,32 +128,55 @@ export function MobileHomeScreen({
         
         <section className="relative flex flex-1 items-center justify-center px-4">
           <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center opacity-20">
-            <div className="absolute h-64 w-64 rounded-full border border-cyan-400" />
-            <div className="absolute h-96 w-96 rounded-full border border-cyan-400" />
-            <div className="absolute h-[32rem] w-[32rem] rounded-full border border-cyan-400" />
-            <div className="absolute h-px w-[150vw] bg-cyan-400" />
-            <div className="absolute h-[150vh] w-px bg-cyan-400" />
+            {/* ARKAPLAN RADAR ÇİZGİLERİ: BAĞLANINCA YEŞİLE DÖNER */}
+            <div className={`absolute h-64 w-64 rounded-full border transition-colors duration-700 ${isConnected ? 'border-green-400' : 'border-cyan-400'}`} />
+            <div className={`absolute h-96 w-96 rounded-full border transition-colors duration-700 ${isConnected ? 'border-green-400' : 'border-cyan-400'}`} />
+            <div className={`absolute h-[32rem] w-[32rem] rounded-full border transition-colors duration-700 ${isConnected ? 'border-green-400' : 'border-cyan-400'}`} />
+            <div className={`absolute h-px w-[150vw] transition-colors duration-700 ${isConnected ? 'bg-green-400' : 'bg-cyan-400'}`} />
+            <div className={`absolute h-[150vh] w-px transition-colors duration-700 ${isConnected ? 'bg-green-400' : 'bg-cyan-400'}`} />
           </div>
 
+          {/* ANA RADAR KÜRESİ VE ANİMASYON ŞOVU */}
           <motion.div
             animate={{
-              scale: [0.95, 1, 0.95],
-              boxShadow: [
-                "0 0 0 0 rgba(0,229,255,0.35)",
-                "0 0 0 20px rgba(0,229,255,0)",
-                "0 0 0 0 rgba(0,229,255,0)"
-              ]
+              scale: isConnected ? [1, 1.04, 1] : [0.95, 1, 0.95],
+              boxShadow: isConnected 
+                ? [
+                    "0 0 0 0 rgba(74,222,128,0.35)",
+                    "0 0 0 25px rgba(74,222,128,0)",
+                    "0 0 0 0 rgba(74,222,128,0)"
+                  ]
+                : [
+                    "0 0 0 0 rgba(0,229,255,0.35)",
+                    "0 0 0 20px rgba(0,229,255,0)",
+                    "0 0 0 0 rgba(0,229,255,0)"
+                  ]
             }}
-            transition={{ duration: 2.2, repeat: Infinity }}
-            className="relative z-10 flex h-24 w-24 items-center justify-center rounded-full border border-cyan-400/50 bg-[rgba(32,31,31,0.8)] shadow-[0_0_24px_rgba(0,229,255,0.15)] backdrop-blur-xl"
+            transition={{ duration: isConnected ? 3 : 2.2, repeat: Infinity }}
+            className={`relative z-10 flex h-24 w-24 items-center justify-center rounded-full border shadow-lg backdrop-blur-xl transition-colors duration-700 ${
+              isConnected 
+                ? 'border-green-400/50 bg-[rgba(20,50,30,0.8)] shadow-[0_0_30px_rgba(74,222,128,0.3)]' 
+                : 'border-cyan-400/50 bg-[rgba(32,31,31,0.8)] shadow-[0_0_24px_rgba(0,229,255,0.15)]'
+            }`}
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--accent),var(--accent-2))] text-lg font-semibold text-slate-950">
+            <div className={`flex h-16 w-16 items-center justify-center rounded-full text-4xl transition-transform duration-500 ${isConnected ? "scale-110" : "bg-[linear-gradient(135deg,var(--accent),var(--accent-2))] text-lg font-semibold text-slate-950"}`}>
               {identity.avatar}
             </div>
+
+            {/* BAĞLANTI ANINDA OMUZA GELEN KARŞI TARAFIN AVATARI */}
+            {isConnected && remotePeer && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0, x: -15, y: 15 }}
+                animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#06131b] text-xl shadow-xl ring-2 ring-green-400/50"
+              >
+                {remotePeer.avatar}
+              </motion.div>
+            )}
           </motion.div>
 
           <div className="absolute left-[25%] top-[20%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-            <DeviceGlyph icon={devices[0].icon} />
+            <DeviceGlyph icon={devices[0].icon} connected={isConnected} />
             <div className="flex flex-col items-center">
               <span className="text-[11px] text-[color:var(--text-primary)]">{devices[0].name}</span>
               <span className="text-[10px] text-[color:var(--text-muted)]">{devices[0].label}</span>
@@ -157,15 +184,15 @@ export function MobileHomeScreen({
           </div>
 
           <div className="absolute right-[20%] top-[35%] flex translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-            <DeviceGlyph icon={devices[1].icon} />
+            <DeviceGlyph icon={devices[1].icon} connected={isConnected} />
             <div className="flex flex-col items-center">
-              <span className="text-[11px] text-[color:var(--text-primary)]">{devices[1].name}</span>
+              <span className={`text-[11px] transition-colors duration-700 ${isConnected ? 'font-medium text-green-300' : 'text-[color:var(--text-primary)]'}`}>{devices[1].name}</span>
               <span className="text-[10px] text-[color:var(--text-muted)]">{devices[1].label}</span>
             </div>
           </div>
 
           <div className="absolute bottom-[45%] left-[30%] flex -translate-x-1/2 translate-y-1/2 flex-col items-center gap-2">
-            <DeviceGlyph icon={devices[2].icon} />
+            <DeviceGlyph icon={devices[2].icon} connected={isConnected} />
             <div className="flex flex-col items-center">
               <span className="text-[11px] text-[color:var(--text-primary)]">{devices[2].name}</span>
               <span className="text-[10px] text-[color:var(--text-muted)]">{devices[2].label}</span>
@@ -241,10 +268,14 @@ export function MobileHomeScreen({
                 type="button"
                 onClick={() => onConnect(connectValue)}
                 disabled={!canConnect}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-400/10 py-4 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-400 shadow-[0_0_20px_rgba(0,229,255,0.15)] transition-all hover:bg-cyan-400 hover:text-[color:var(--surface-base)] disabled:cursor-not-allowed disabled:opacity-45"
+                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full border py-4 text-xs font-semibold uppercase tracking-[0.22em] transition-all disabled:cursor-not-allowed disabled:opacity-45 ${
+                  isConnected 
+                    ? "border-green-400/50 bg-green-400/10 text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.15)]" 
+                    : "border-cyan-400/50 bg-cyan-400/10 text-cyan-400 shadow-[0_0_20px_rgba(0,229,255,0.15)] hover:bg-cyan-400 hover:text-[color:var(--surface-base)]"
+                }`}
               >
                 <SendHorizontal size={16} />
-                {connectionState === "connected" && remotePeer ? t("radar.connected", { name: remotePeer.name }) : t("radar.cta")}
+                {isConnected && remotePeer ? t("radar.connected", { name: remotePeer.name }) : t("radar.cta")}
               </button>
 
               <div className="mt-4 rounded-2xl border border-white/5 bg-black/10 px-4 py-3">
@@ -267,16 +298,16 @@ export function MobileHomeScreen({
 
               <div className="mt-4 rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
                 <div className="mb-3 text-xs uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                  {connectionState === "connected"
+                  {isConnected
                     ? t("radar.connected", { name: remotePeer?.name })
                     : t("radar.waiting")}
                 </div>
                 <PeerCard peer={remotePeer} />
               </div>
 
-              {connectionState === "connected" && remotePeer ? (
-                <div className="mt-4 rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-4">
-                  <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">
+              {isConnected && remotePeer ? (
+                <div className="mt-4 rounded-2xl border border-green-400/20 bg-green-400/10 p-4 transition-colors duration-700">
+                  <div className="text-xs uppercase tracking-[0.2em] text-green-300">
                     {t("mobile.readyToShare", { name: remotePeer.name })}
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3">
@@ -287,7 +318,7 @@ export function MobileHomeScreen({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="rounded-full bg-[color:var(--accent)] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-950"
+                      className="rounded-full bg-green-400 px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-950 transition-colors hover:bg-green-300"
                     >
                       {t("mobile.chooseFile")}
                     </button>
@@ -308,15 +339,14 @@ export function MobileHomeScreen({
             <input
               ref={fileInputRef}
               type="file"
-              multiple // BİRDEN FAZLA SEÇİM İZNİ EKLENDİ
+              multiple
               className="hidden"
               onChange={(event) => {
-                // SEÇİLEN DOSYALARI DİZİYE ÇEVİRİP GÖNDER
                 const files = Array.from(event.target.files || []);
                 if (files.length > 0) {
                   onSendFile(files);
                 }
-                event.target.value = ''; // Input'u temizle
+                event.target.value = '';
               }}
             />
           </motion.div>
