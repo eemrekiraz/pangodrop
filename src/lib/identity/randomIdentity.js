@@ -1,14 +1,14 @@
 // En temel, evrensel ve sade renkler
 const COLORS = [
-  { name: "Red", emoji: "🔴" },
-  { name: "Blue", emoji: "🔵" },
-  { name: "Green", emoji: "🟢" },
-  { name: "Yellow", emoji: "🟡" },
-  { name: "Purple", emoji: "🟣" },
-  { name: "Orange", emoji: "🟠" },
-  { name: "Black", emoji: "⚫" },
-  { name: "White", emoji: "⚪" },
-  { name: "Brown", emoji: "🟤" }
+  { name: "Red", emoji: "" },
+  { name: "Blue", emoji: "" },
+  { name: "Green", emoji: "" },
+  { name: "Yellow", emoji: "" },
+  { name: "Purple", emoji: "" },
+  { name: "Orange", emoji: "" },
+  { name: "Black", emoji: "" },
+  { name: "White", emoji: "" },
+  { name: "Brown", emoji: "" }
 ];
 
 export function createRandomIdentity() {
