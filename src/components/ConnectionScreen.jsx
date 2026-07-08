@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Radar, Link as LinkIcon, Smartphone, QrCode, ArrowRight } from "lucide-react";
 
-export default function ConnectionScreen({ 
-  identity, 
-  roomCode, 
-  connectToPeer, 
-  connectionState 
+export default function ConnectionScreen({
+  identity,
+  roomCode,
+  connectToPeer,
+  connectionState
 }) {
   const [inputValue, setInputValue] = useState("");
 
@@ -19,10 +19,10 @@ export default function ConnectionScreen({
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto space-y-12">
-      
+
       {/* --- RADAR BÖLÜMÜ --- */}
       <div className="relative flex items-center justify-center w-64 h-64 mt-10">
-        
+
         {/* Radar Dalgaları (Framer Motion) */}
         {[1, 2, 3].map((ring) => (
           <motion.div
@@ -97,7 +97,7 @@ export default function ConnectionScreen({
           </button>
         </form>
 
-        <button 
+        <button
           type="button"
           className="flex items-center justify-center w-full gap-2 py-3 text-sm font-medium transition-colors text-slate-300 bg-white/5 rounded-xl hover:bg-white/10 hover:text-white"
         >

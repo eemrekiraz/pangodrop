@@ -84,7 +84,7 @@ export function RadarScreen({
           </div>
           <PeerCard peer={remotePeer} />
         </GlassCard>
-        <RadarAd />
+        {/* <RadarAd /> */}
       </div>
 
       <QrConnectSheet open={sheetOpen} shareLink={shareLink} onClose={() => setSheetOpen(false)} />

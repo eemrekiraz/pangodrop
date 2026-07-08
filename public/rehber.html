@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectlyDrop Kullanım Rehberi ve WebRTC Teknolojisi</title>
+    <meta name="description"
+        content="DirectlyDrop ile P2P dosya transferi nasıl yapılır? WebRTC teknolojisi nedir ve uçtan uca şifreleme nasıl çalışır? Detaylı rehberimiz.">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            color: #06131b;
+            font-size: 2.5rem;
+            border-bottom: 2px solid #00e5ff;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #007bb5;
+            margin-top: 40px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        a {
+            color: #00e5ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="/">&larr; DirectlyDrop Ana Sayfaya Dön</a>
+
+    <h1>DirectlyDrop Kullanım Rehberi ve Dosya Transferi Teknolojileri</h1>
+
+    <div class="box">
+        <h2>P2P (Peer-to-Peer) Dosya Transferi Nedir?</h2>
+        <p>Geleneksel dosya transfer yöntemlerinde, bir dosyayı arkadaşınıza göndermek istediğinizde dosya önce
+            WhatsApp, Google Drive veya WeTransfer gibi bir aracının sunucusuna yüklenir. Bu durum hem zaman kaybına hem
+            de güvenlik risklerine yol açar. DirectlyDrop ise P2P (Uçtan Uca) teknolojisini kullanarak sizin cihazınız
+            ile alıcının cihazı arasında doğrudan, görünmez bir köprü kurar. Verileriniz hiçbir sunucuda depolanmaz,
+            kopyalanmaz ve izlenemez.</p>
+    </div>
+
+    <div class="box">
+        <h2>WebRTC Teknolojisi Nasıl Çalışır?</h2>
+        <p>WebRTC (Web Real-Time Communication), tarayıcıların herhangi bir ek eklenti veya uygulama kurmadan birbiriyle
+            doğrudan iletişim kurmasını sağlayan açık kaynaklı bir projedir. DirectlyDrop, bu teknolojinin sunduğu
+            "DataChannel" altyapısını kullanarak dosyalarınızı 16 KB'lık küçük, şifreli paketlere (chunk) böler ve
+            saniyeler içinde karşı tarafa ulaştırır. İnternet hızınız ne kadar yüksekse, transfer o kadar hızlı
+            gerçekleşir; aracı sunucuların hız limitlerine takılmazsınız.</p>
+    </div>
+
+    <div class="box">
+        <h2>Nasıl Kullanılır? (Adım Adım Rehber)</h2>
+        <p><strong>Adım 1: Eşleşme Sağlayın</strong><br> DirectlyDrop ana sayfasına girdiğinizde sistem size 7 haneli
+            benzersiz bir oda kodu (Room Code) atar. Bu kodu dosya göndereceğiniz veya alacağınız kişiyle paylaşın.</p>
+        <p><strong>Adım 2: Dosya Seçimi</strong><br> Eşleşme sağlandıktan sonra radar ekranı yeşile döner. Göndermek
+            istediğiniz dosyaları seçin. Sistemimiz OPFS (Origin Private File System) kullandığı için 10 GB, hatta 50 GB
+            boyutundaki dosyaları bile tarayıcınızın belleğini (RAM) şişirmeden doğrudan diskinize yazarak transfer
+            eder.</p>
+        <p><strong>Adım 3: Transferin Tamamlanması</strong><br> Dosya aktarımı sırasında sekmenizi kapatmayın. Aktarım
+            tamamlandığında cihazınız hafifçe titreşecek ve dosya otomatik olarak cihazınıza kaydedilecektir.</p>
+    </div>
+
+    <div class="box">
+        <h2>Güvenlik ve Şifreleme</h2>
+        <p>WebRTC protokolü gereği, cihazlar arasında kurulan tüm bağlantılar varsayılan olarak DTLS (Datagram Transport
+            Layer Security) ve SRTP (Secure Real-time Transport Protocol) ile uçtan uca şifrelenir. Ağa sızan kötü
+            niyetli kişiler veya internet servis sağlayıcınız bile bu veri paketlerinin içeriğini okuyamaz. Gizlilik,
+            DirectlyDrop'un temel mimarisidir.</p>
+    </div>
+
+</body>
+
+</html>

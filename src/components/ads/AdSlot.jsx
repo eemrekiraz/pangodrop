@@ -14,9 +14,8 @@ export function AdSlot({ label, className = "", compact = false, slotId, format 
 
   return (
     <div
-      className={`relative flex w-full items-center justify-center overflow-hidden rounded-[1.25rem] border border-white/8 bg-[color:var(--surface-panel)]/75 text-center text-[color:var(--text-muted)] shadow-[0_14px_36px_rgba(0,0,0,0.2)] backdrop-blur-xl ${
-        compact ? "min-h-12" : "min-h-16"
-      } ${className}`.trim()}
+      className={`relative flex w-full items-center justify-center overflow-hidden rounded-[1.25rem] border border-white/8 bg-[color:var(--surface-panel)]/75 text-center text-[color:var(--text-muted)] shadow-[0_14px_36px_rgba(0,0,0,0.2)] backdrop-blur-xl ${compact ? "min-h-12" : "min-h-16"
+        } ${className}`.trim()}
     >
       {slotId ? (
         // Gerçek Reklam Kodu (Yayına alırken çalışır)

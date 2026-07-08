@@ -28,11 +28,11 @@ function RoomDigit({ value, onChange, onKeyDown, inputRef }) {
       ref={inputRef}
       value={value}
       maxLength={1}
-      inputMode="numeric" 
-      pattern="[0-9]*" 
+      inputMode="numeric"
+      pattern="[0-9]*"
       placeholder="-"
       onChange={(e) => {
-        const val = e.target.value.replace(/[^0-9]/g, ''); 
+        const val = e.target.value.replace(/[^0-9]/g, '');
         onChange({ target: { value: val } });
       }}
       onKeyDown={onKeyDown}
@@ -85,7 +85,7 @@ export function MobileHomeScreen({
   }, [identity.name, remotePeer, roomCode, t]);
 
   const connectValue = peerInput.trim() || roomDigits.join("");
-  const sheetY = isSheetExpanded ? 0 : 232; 
+  const sheetY = isSheetExpanded ? 0 : 232;
   const canConnect = connectValue.trim().length > 0;
 
   const handleDigitChange = (index, nextValue) => {
@@ -111,10 +111,10 @@ export function MobileHomeScreen({
     <div className="relative min-h-[max(884px,100dvh)] overflow-hidden bg-[color:var(--surface-base)] text-[color:var(--text-primary)] md:hidden">
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-transparent px-6 py-4 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <img 
-            src="/directlydrop-icon.svg" 
-            alt="Logo" 
-            className="h-16 w-auto object-contain" 
+          <img
+            src="/directlydrop-icon.svg"
+            alt="Logo"
+            className="h-16 w-auto object-contain"
           />
           <h1 className="text-xl font-bold tracking-tight text-cyan-400">DirectlyDrop</h1>
         </div>
@@ -125,7 +125,7 @@ export function MobileHomeScreen({
       </header>
 
       <main className="relative flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden pb-48 pt-10">
-        
+
         <section className="relative flex flex-1 items-center justify-center px-4">
           <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center opacity-20">
             {/* ARKAPLAN RADAR ÇİZGİLERİ: BAĞLANINCA YEŞİLE DÖNER */}
@@ -140,24 +140,23 @@ export function MobileHomeScreen({
           <motion.div
             animate={{
               scale: isConnected ? [1, 1.04, 1] : [0.95, 1, 0.95],
-              boxShadow: isConnected 
+              boxShadow: isConnected
                 ? [
-                    "0 0 0 0 rgba(74,222,128,0.35)",
-                    "0 0 0 25px rgba(74,222,128,0)",
-                    "0 0 0 0 rgba(74,222,128,0)"
-                  ]
+                  "0 0 0 0 rgba(74,222,128,0.35)",
+                  "0 0 0 25px rgba(74,222,128,0)",
+                  "0 0 0 0 rgba(74,222,128,0)"
+                ]
                 : [
-                    "0 0 0 0 rgba(0,229,255,0.35)",
-                    "0 0 0 20px rgba(0,229,255,0)",
-                    "0 0 0 0 rgba(0,229,255,0)"
-                  ]
+                  "0 0 0 0 rgba(0,229,255,0.35)",
+                  "0 0 0 20px rgba(0,229,255,0)",
+                  "0 0 0 0 rgba(0,229,255,0)"
+                ]
             }}
             transition={{ duration: isConnected ? 3 : 2.2, repeat: Infinity }}
-            className={`relative z-10 flex h-24 w-24 items-center justify-center rounded-full border shadow-lg backdrop-blur-xl transition-colors duration-700 ${
-              isConnected 
-                ? 'border-green-400/50 bg-[rgba(20,50,30,0.8)] shadow-[0_0_30px_rgba(74,222,128,0.3)]' 
+            className={`relative z-10 flex h-24 w-24 items-center justify-center rounded-full border shadow-lg backdrop-blur-xl transition-colors duration-700 ${isConnected
+                ? 'border-green-400/50 bg-[rgba(20,50,30,0.8)] shadow-[0_0_30px_rgba(74,222,128,0.3)]'
                 : 'border-cyan-400/50 bg-[rgba(32,31,31,0.8)] shadow-[0_0_24px_rgba(0,229,255,0.15)]'
-            }`}
+              }`}
           >
             <div className={`flex h-16 w-16 items-center justify-center rounded-full text-4xl transition-transform duration-500 ${isConnected ? "scale-110" : "bg-[linear-gradient(135deg,var(--accent),var(--accent-2))] text-lg font-semibold text-slate-950"}`}>
               {identity.avatar}
@@ -165,7 +164,7 @@ export function MobileHomeScreen({
 
             {/* BAĞLANTI ANINDA OMUZA GELEN KARŞI TARAFIN AVATARI */}
             {isConnected && remotePeer && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0, x: -15, y: 15 }}
                 animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
                 className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#06131b] text-xl shadow-xl ring-2 ring-green-400/50"
@@ -246,9 +245,8 @@ export function MobileHomeScreen({
             </div>
 
             <div
-              className={`overflow-y-auto px-6 pb-6 transition-[max-height] duration-300 ease-out ${
-                isSheetExpanded ? "max-h-[58dvh]" : "max-h-[22rem]"
-              }`}
+              className={`overflow-y-auto px-6 pb-6 transition-[max-height] duration-300 ease-out ${isSheetExpanded ? "max-h-[58dvh]" : "max-h-[22rem]"
+                }`}
             >
               <div className="flex justify-between gap-1 sm:gap-2 px-1 sm:px-2">
                 {roomDigits.map((digit, index) => (
@@ -268,11 +266,10 @@ export function MobileHomeScreen({
                 type="button"
                 onClick={() => onConnect(connectValue)}
                 disabled={!canConnect}
-                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full border py-4 text-xs font-semibold uppercase tracking-[0.22em] transition-all disabled:cursor-not-allowed disabled:opacity-45 ${
-                  isConnected 
-                    ? "border-green-400/50 bg-green-400/10 text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.15)]" 
+                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full border py-4 text-xs font-semibold uppercase tracking-[0.22em] transition-all disabled:cursor-not-allowed disabled:opacity-45 ${isConnected
+                    ? "border-green-400/50 bg-green-400/10 text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.15)]"
                     : "border-cyan-400/50 bg-cyan-400/10 text-cyan-400 shadow-[0_0_20px_rgba(0,229,255,0.15)] hover:bg-cyan-400 hover:text-[color:var(--surface-base)]"
-                }`}
+                  }`}
               >
                 <SendHorizontal size={16} />
                 {isConnected && remotePeer ? t("radar.connected", { name: remotePeer.name }) : t("radar.cta")}
@@ -327,10 +324,12 @@ export function MobileHomeScreen({
               ) : null}
 
               <div className="mt-5">
+                {/* 
                 <AdSlot
                   label={isSheetExpanded ? t("ads.radar") : t("mobile.advertisement")}
                   compact
-                />
+                /> 
+                */}
               </div>
 
               {isSheetExpanded ? <div className="mt-5"><SitePolicyNotice compact /></div> : null}
