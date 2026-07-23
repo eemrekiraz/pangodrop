@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["directlydrop-icon.sv"],
+      includeAssets: ["directlydrop-icon.svg"],
       manifest: {
         name: "DirectlyDrop",
         short_name: "DirectlyDrop",
@@ -20,7 +20,7 @@ export default defineConfig({
         start_url: "/",
         icons: [
           {
-            src: "/directlydrop-icon.sv",
+            src: "/directlydrop-icon.svg",
             sizes: "any",
             type: "image/svg+xml",
             purpose: "any maskable"

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/layout/AppShell";
 import { RadarScreen } from "../components/discovery/RadarScreen";
@@ -10,19 +10,28 @@ import { useWebRTC } from "../hooks/useWebRTC";
 import { LandingContent } from "../components/seo/LandingContent";
 import { Footer } from "../components/layout/Footer";
 import { LegalPages } from "../components/seo/LegalPages";
+import { ContentPages } from "../components/seo/ContentPages";
 import { CookieConsent } from "../components/common/CookieConsent";
+
+const legalPaths = new Set(["/gizlilik", "/kullanim-kosullari"]);
+const contentPaths = new Set([
+  "/rehber",
+  "/webrtc-nedir",
+  "/guvenli-dosya-transferi",
+  "/buyuk-dosya-gonderme",
+  "/sss"
+]);
 
 export default function App() {
   const { t } = useTranslation();
   const rtc = useWebRTC();
   const [activeFile, setActiveFile] = useState(null);
-
-  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
-    const handleHashChange = () => setCurrentHash(window.location.hash);
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    const handleLocationChange = () => setCurrentPath(window.location.pathname);
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
   const summary = useMemo(
@@ -35,18 +44,14 @@ export default function App() {
   );
 
   const handleSendFile = async (filesInput) => {
-    // Gelen veriyi diziye çevir
     const filesArray = Array.isArray(filesInput) ? filesInput : [filesInput];
-    
-    // 3 Dosya sınırını uygula
     const filesToSend = filesArray.slice(0, 3);
-    
+
     if (filesArray.length > 3) {
       alert(t("transfer.maxFilesAlert"));
     }
 
-    // UI çökmesin diye sadece ilk dosyayı vitrine koy
-    setActiveFile(filesToSend[0]); 
+    setActiveFile(filesToSend[0]);
     await rtc.sendFile(filesToSend);
   };
 
@@ -62,22 +67,32 @@ export default function App() {
         ? "transfer"
         : "home";
 
-  if (currentHash === "#gizlilik" || currentHash === "#kosullar") {
-    const type = currentHash === "#gizlilik" ? "gizlilik" : "kosullar";
+  if (legalPaths.has(currentPath)) {
+    const type = currentPath === "/gizlilik" ? "gizlilik" : "kosullar";
     return (
       <div className="min-h-screen bg-[#06131b]">
         <AppShell>
           <LegalPages type={type} />
         </AppShell>
-        {/* Yasal sayfalarda da çerez onayı çıksın */}
         <CookieConsent />
       </div>
     );
-  }           
+  }
+
+  if (contentPaths.has(currentPath)) {
+    return (
+      <div className="min-h-screen bg-[#06131b]">
+        <AppShell>
+          <ContentPages path={currentPath} />
+          <Footer />
+        </AppShell>
+        <CookieConsent />
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* MOBİL GÖRÜNÜM */}
       <div className="md:hidden flex flex-col min-h-[100dvh] bg-[#06131b]">
         <div className="flex-1">
           {mobileStage === "home" ? (
@@ -92,7 +107,6 @@ export default function App() {
                 onConnect={rtc.connectToPeer}
                 onSendFile={handleSendFile}
               />
-              {/* MOBİL İÇİN YENİ EKLENEN İÇERİK VE FOOTER */}
               <LandingContent />
               <Footer />
             </>
@@ -117,19 +131,11 @@ export default function App() {
             />
           ) : null}
         </div>
-
-        {/* Mobil AdSense Anchor (Yapışkan Alt Reklam) - Yüksek Gelir Alanı */}
-        <div className="w-full bg-white/5 border-t border-white/10 sticky bottom-0 z-50 flex items-center justify-center p-2 min-h-[60px]">
-          <span className="text-xs text-slate-500">[AdSense Mobile Bottom Anchor]</span>
-        </div>
       </div>
 
-      {/* MASAÜSTÜ GÖRÜNÜM */}
       <div className="hidden md:block bg-[#06131b] min-h-screen">
         <AppShell>
           <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-between px-4 pb-6 pt-4 sm:px-6 sm:pt-6 lg:px-8">
-            
-            {/* Üst Kısım: Radar ve Transfer */}
             <div className="flex flex-col gap-6 sm:gap-8">
               <RadarScreen
                 identity={rtc.identity}
@@ -141,11 +147,6 @@ export default function App() {
                 onConnect={rtc.connectToPeer}
               />
 
-              {/* Masaüstü AdSense Banner - Radar Altı / Butonlardan Uzak Güvenli Bölge */}
-              <div className="w-full max-w-3xl mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-4 min-h-[90px] shadow-lg">
-                <span className="text-xs text-slate-500">[AdSense Desktop Horizontal Banner]</span>
-              </div>
-
               <TransferPanel
                 activeFile={activeFile}
                 connectionState={rtc.connectionState}
@@ -154,17 +155,14 @@ export default function App() {
                 onPickFile={setActiveFile}
                 onSendFile={handleSendFile}
               />
-              
-              {/* MASAÜSTÜ İÇİN YENİ EKLENEN İÇERİK VE FOOTER */}
+
               <LandingContent />
               <Footer />
             </div>
-
           </div>
         </AppShell>
       </div>
 
-      {/* İŞTE ALTIN VURUŞ: Tüm uygulamanın en altına Çerez Onay Çubuğunu Ekledik! */}
       <CookieConsent />
     </>
   );

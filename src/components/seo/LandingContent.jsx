@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
+import { Link } from "./Link";
 
 export function LandingContent() {
   const { t } = useTranslation();
@@ -48,6 +49,44 @@ export function LandingContent() {
         </div>
       </section>
 
+      <section className="mt-16">
+        <h2 className="mb-8 text-center text-2xl font-bold text-cyan-400 sm:text-3xl">Dosya Transferi Rehberleri</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <LinkCard
+            href="/rehber"
+            title="DirectlyDrop kullanım rehberi"
+            description="Oda kodu, QR bağlantısı ve dosya seçimiyle aktarımın nasıl başladığını adım adım öğrenin."
+          />
+          <LinkCard
+            href="/webrtc-nedir"
+            title="WebRTC nedir?"
+            description="Tarayıcılar arasında veri kanalı kurulurken neler olduğunu sade bir dille inceleyin."
+          />
+          <LinkCard
+            href="/guvenli-dosya-transferi"
+            title="Güvenli dosya transferi"
+            description="Doğru alıcıyı doğrulama, hassas dosyalar ve güvenilir ağ kullanımı için kontrol listesi."
+          />
+          <LinkCard
+            href="/buyuk-dosya-gonderme"
+            title="Büyük dosya gönderme"
+            description="Video, arşiv ve proje dosyalarında bağlantı kopmasını azaltacak pratik öneriler."
+          />
+        </div>
+      </section>
+
     </div>
+  );
+}
+
+function LinkCard({ href, title, description }) {
+  return (
+    <Link
+      href={href}
+      className="block rounded-lg border border-white/10 bg-white/5 p-5 text-left no-underline transition hover:border-cyan-300/40 hover:bg-white/8"
+    >
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">{description}</p>
+    </Link>
   );
 }

@@ -94,20 +94,20 @@
   },
   "seo": {
     "title": "DirectlyDrop: Tarayıcı Tabanlı Güvenli Dosya Transferi",
-    "p1": "DirectlyDrop, WebRTC teknolojisini kullanarak cihazlar arasında doğrudan (Peer-to-Peer) bağlantı kurar. Dosyalarınız hiçbir zaman bir sunucuya yüklenmez veya veritabanında saklanmaz. Bu sayede hem maksimum gizlilik sağlanır hem de transfer hızı sadece internet bağlantınızın limitleriyle sınırlı kalır.",
-    "p2": "Uçtan uca şifreleme sayesinde gönderdiğiniz fotoğraflar, videolar veya belgeler yoldayken kimse tarafından okunamaz. Kayıt olma, uygulama indirme veya boyut sınırı gibi engeller olmadan, sadece 7 haneli güvenli oda kodunu kullanarak saniyeler içinde paylaşıma başlayabilirsiniz.",
+    "p1": "DirectlyDrop, desteklenen durumlarda WebRTC teknolojisini kullanarak cihazlar arasında doğrudan (Peer-to-Peer) bağlantı kurar. Dosya içerikleri kalıcı bir sunucuda depolanmadan aktarılmaya çalışılır. Aktarım hızı tarayıcı desteğine, cihaz kapasitesine ve internet bağlantınızın kalitesine bağlıdır.",
+    "p2": "Modern tarayıcıların güvenli bağlantı özellikleri sayesinde fotoğraf, video veya belgelerinizi pratik biçimde paylaşabilirsiniz. Kayıt olma ya da uygulama indirme zorunluluğu olmadan, 7 haneli oda kodu veya paylaşım bağlantısı kullanarak aktarımı başlatabilirsiniz.",
     "howItWorks": "Nasıl Çalışır?",
     "step1Title": "1. Bağlantı Kurun",
     "step1Desc": "Ekranda beliren 7 haneli oda kodunu, QR kodu veya paylaşım bağlantısını kullanarak alıcıyla eşleşin.",
     "step2Title": "2. Dosyanızı Seçin",
-    "step2Desc": "Bağlantı sağlandıktan sonra göndermek istediğiniz dosyayı seçin. Dosya boyutu sınırı yoktur.",
+    "step2Desc": "Bağlantı sağlandıktan sonra göndermek istediğiniz dosyayı seçin. Pratik sınırlar cihaz, tarayıcı ve ağ koşullarına göre değişebilir.",
     "step3Title": "3. Anında Aktarım",
     "step3Desc": "Seçtiğiniz dosya, cihazlar arası doğrudan (P2P) ve güvenli bir şekilde anında aktarılmaya başlar.",
     "faqTitle": "Sıkça Sorulan Sorular",
     "faq1Q": "Dosya boyutu sınırı var mı?",
-    "faq1A": "Hayır, DirectlyDrop tamamen sunucusuz çalıştığı için herhangi bir dosya boyutu kısıtlaması yoktur. Sınır sadece tarayıcınızın kapasitesi ve internet hızınızdır.",
+    "faq1A": "DirectlyDrop yapay bir dosya boyutu sınırı koymamaya çalışır. Pratik sınırlar tarayıcınızın kapasitesi, disk alanınız ve internet hızınızla belirlenir.",
     "faq2Q": "Dosyalarım nerede saklanıyor?",
-    "faq2A": "Hiçbir yerde! Veri doğrudan sizin cihazınızdan alıcının cihazına şifreli bir tünel üzerinden akar. Sunucularımız dosyalarınızı asla kaydetmez.",
+    "faq2A": "Dosya içerikleri DirectlyDrop tarafından kalıcı olarak saklanmadan gönderici ve alıcı arasında aktarılmaya çalışılır. Bağlantı, ölçüm ve reklam hizmetleri için bazı teknik veriler işlenebilir.",
     "faq3Q": "DirectlyDrop ücretli mi?",
     "faq3A": "Hayır, tamamen ücretsizdir. Sistemi ayakta tutmak için sadece sayfalarda ufak reklamlar gösteriyoruz."
   },
@@ -116,6 +116,6 @@
     "terms": "Kullanım Koşulları",
     "contact": "İletişim",
     "rights": "Tüm hakları saklıdır.",
-    "description": "Cihazlar arası güvenli, hızlı ve sunucusuz dosya aktarım aracı."
+    "description": "Cihazlar arası güvenli ve hızlı tarayıcı tabanlı dosya aktarım aracı."
   }
 }

@@ -1,4 +1,3 @@
-import { BottomAnchorAd } from "../ads/BottomAnchorAd";
 import { MobileNav } from "./MobileNav";
 import { TopBar } from "./TopBar";
 
@@ -11,10 +10,6 @@ export function AppShell({ children }) {
         <TopBar />
         <div className="mx-auto flex w-full max-w-7xl flex-col">
           {children}
-          <div className="grid gap-6 px-4 pb-10 sm:px-6 lg:px-8">
-            <BottomAnchorAd />
-            {/* Eski Reklam ve Gizlilik kutusu buradan silindi! */}
-          </div>
         </div>
         <MobileNav />
       </div>

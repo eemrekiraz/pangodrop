@@ -94,20 +94,20 @@
   },
   "seo": {
     "title": "DirectlyDrop: Secure Browser-Based File Transfer",
-    "p1": "DirectlyDrop uses WebRTC technology to establish a direct Peer-to-Peer connection between devices. Your files are never uploaded to a server or stored in a database. This ensures maximum privacy and transfer speeds limited only by your internet connection.",
+    "p1": "DirectlyDrop uses WebRTC where supported to establish a direct Peer-to-Peer connection between devices. File contents are designed to transfer without persistent server storage. Speed depends on browser support, device capacity, and network quality.",
     "p2": "Thanks to end-to-end encryption, the photos, videos, or documents you send cannot be intercepted. Without the hassle of registrations, app downloads, or file size limits, you can start sharing in seconds using a secure 7-digit room code.",
     "howItWorks": "How it Works?",
     "step1Title": "1. Establish Connection",
     "step1Desc": "Pair with the recipient using the 7-digit room code, QR code, or share link displayed on your screen.",
     "step2Title": "2. Select Your File",
-    "step2Desc": "Once connected, choose the file you want to send. There are no file size limits or restrictions.",
+    "step2Desc": "Once connected, choose the file you want to send. Practical limits can vary by device, browser, storage, and network conditions.",
     "step3Title": "3. Instant Transfer",
     "step3Desc": "Your selected file begins transferring instantly and securely directly between devices (P2P).",
     "faqTitle": "Frequently Asked Questions",
     "faq1Q": "Is there a file size limit?",
-    "faq1A": "No, because DirectlyDrop is completely serverless, there are no artificial file size limits. You are only limited by your browser's capacity and internet speed.",
+    "faq1A": "DirectlyDrop tries not to impose an artificial file size limit. Practical limits depend on browser capacity, disk space, and network quality.",
     "faq2Q": "Where are my files stored?",
-    "faq2A": "Nowhere! Data flows directly from your device to the recipient's device through an encrypted tunnel. Our cloud never stores your files.",
+    "faq2A": "File contents are designed to move between the sender and recipient without persistent DirectlyDrop storage. Some technical data may still be processed for connection, analytics, and advertising services.",
     "faq3Q": "Is DirectlyDrop free?",
     "faq3A": "Yes, it is completely free. We only show non-intrusive ads to keep the system running."
   },
@@ -116,6 +116,6 @@
     "terms": "Terms of Service",
     "contact": "Contact Us",
     "rights": "All rights reserved.",
-    "description": "Secure, fast, and serverless peer-to-peer file transfer tool."
+    "description": "Secure and fast browser-based peer-to-peer file transfer tool."
   }
 }
